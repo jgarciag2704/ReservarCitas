@@ -7,10 +7,12 @@ RUN docker-php-ext-install pdo pdo_mysql
 # Habilitar rewrite
 RUN a2enmod rewrite
 
-# 🔥 FIX MPM CONFLICT
-RUN a2dismod mpm_event || true && \
-    a2dismod mpm_worker || true && \
-    a2enmod mpm_prefork
+# 🔥 ELIMINAR TODOS LOS MPM POSIBLES
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load && \
+    rm -f /etc/apache2/mods-available/mpm_*.load
+
+# 🔥 HABILITAR SOLO PREFORK
+RUN a2enmod mpm_prefork
 
 # Permitir .htaccess
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
