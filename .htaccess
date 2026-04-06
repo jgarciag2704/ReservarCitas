@@ -1,0 +1,15 @@
+# 1. Desactivar el listado de directorios por seguridad
+Options -Indexes
+
+# 2. Activar el motor de reescritura
+RewriteEngine On
+
+# 3. No aplicar reescritura si existe el archivo o directorio real
+# Esto permite cargar Assets (css, js, imágenes) directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 4. Redirigir todo lo demás al controlador frontal (index.php)
+# QSA (Query String Append) para no perder parámetros antiguos
+# L (Last) para detener el procesamiento si esta regla coincide
+RewriteRule ^(.*)$ index.php [QSA,L]

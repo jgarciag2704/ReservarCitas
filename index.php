@@ -10,8 +10,21 @@ verificarCSRF();
 $database = new Database();
 $db = $database->connect();
 
+// ✅ Lógica de Enrutamiento (URLs Amigables y Query Strings)
+$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+$parts = explode('/', $uri);
+
+// Valores por defecto
 $controller = $_GET['controller'] ?? 'auth';
-$action = $_GET['action'] ?? 'login';
+$action     = $_GET['action']     ?? 'login';
+
+// Si la URL limpia tiene partes, sobrescribimos (Compatibilidad)
+if (!isset($_GET['controller']) && !empty($parts[0])) {
+    $controller = $parts[0];
+    if (isset($parts[1])) {
+        $action = $parts[1];
+    }
+}
 
 switch ($controller) {
 
