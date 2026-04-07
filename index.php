@@ -1,9 +1,9 @@
 <?php
-var_dump(scandir(__DIR__));
-exit;
+//var_dump(scandir(__DIR__));
+//exit;
 session_start();
 
-require_once __DIR__ . '/config/Database.php';
+require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/Helpers/csrf.php';
 verificarCSRF();
 
