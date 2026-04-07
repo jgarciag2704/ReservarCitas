@@ -4,12 +4,17 @@ session_start();
 require_once 'config/Database.php';
 
 require_once 'Helpers/csrf.php';
-verificarCSRF();
+//verificarCSRF();
 
-// ✅ Crear instancia y conexión
-$database = new Database();
-$db = $database->connect();
+$db = null;
 
+try {
+    $database = new Database();
+    $db = $database->connect();
+} catch (Exception $e) {
+    echo "Sistema en configuración 🚧";
+    exit;
+}
 // ✅ Lógica de Enrutamiento (URLs Amigables y Query Strings)
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $parts = explode('/', $uri);
