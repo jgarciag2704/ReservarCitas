@@ -24,26 +24,27 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10 bg-slate-50">
 
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 mt-4 md:mt-0">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Horarios</h1>
-                <p class="text-gray-500 mt-1">Configura los días y horas de atención</p>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Horarios</h1>
+                <p class="text-gray-500 mt-1 font-medium italic">Configura los días y horas de atención</p>
             </div>
-            <div class="flex gap-4">
-                <div class="relative">
+            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div class="relative flex-1 md:flex-none">
                     <input type="text" id="filterEmpleado" onkeyup="filterTable()" 
                            placeholder="Filtrar por empleado..." 
-                           class="border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-brand w-64">
+                           class="w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-brand md:w-64 shadow-sm">
                 </div>
                 <button onclick="openModal('modalCrear')"
-                        class="bg-brand text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors hover:brightness-110 shadow-lg shadow-brand-soft">
-                    + Agregar horario
+                        class="bg-brand text-white px-6 py-3 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-brand/20 flex items-center justify-center gap-2">
+                    <span class="text-xl">+</span>
+                    <span>Agregar horario</span>
                 </button>
             </div>
         </div>

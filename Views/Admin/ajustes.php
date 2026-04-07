@@ -13,12 +13,12 @@
 </head>
 <body class="text-slate-800 antialiased selection:bg-indigo-100">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto p-10 bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50/20">
-        
-        <div class="mb-10">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10 bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50/20">
+
+        <div class="mb-10 mt-4 md:mt-0">
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Ajustes de Negocio</h1>
             <p class="text-slate-500 font-medium">Personaliza tu perfil público y marca</p>
         </div>

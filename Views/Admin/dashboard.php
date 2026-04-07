@@ -25,15 +25,15 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
 </head>
 <body class="text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
     <!-- MAIN CON GRADIENTE DE FONDO MUY SUTIL -->
-    <main class="flex-1 overflow-y-auto p-10 bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50/30">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10 bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50/30">
 
         <!-- Cabecera Premium -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 mt-4 md:mt-0">
             <div>
                 <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
                     Hola, <span class="text-brand"><?= htmlspecialchars($admin['nombre'] ?? 'Admin') ?></span> 👋

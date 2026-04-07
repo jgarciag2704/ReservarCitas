@@ -15,20 +15,21 @@ unset($_SESSION['success'], $_SESSION['error']);
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10 bg-slate-50">
 
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 mt-4 md:mt-0">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Servicios</h1>
-                <p class="text-gray-500 mt-1">Gestiona los servicios de tu negocio</p>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Servicios</h1>
+                <p class="text-gray-500 mt-1 font-medium italic">Gestiona los servicios de tu negocio</p>
             </div>
             <button onclick="openModal()"
-                    class="bg-brand text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors hover:brightness-110 shadow-lg shadow-brand-soft">
-                + Nuevo servicio
+                    class="w-full md:w-auto bg-brand text-white px-6 py-3 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-brand/20 flex items-center justify-center gap-2">
+                <span class="text-xl">+</span>
+                <span>Nuevo servicio</span>
             </button>
         </div>
 

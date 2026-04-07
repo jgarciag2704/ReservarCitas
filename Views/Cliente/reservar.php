@@ -12,6 +12,9 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- intl-tel-input para teléfonos internacionales -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.1/build/js/intlTelInput.min.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
 
@@ -75,6 +78,27 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
         .emp-card { cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
         .emp-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
         .emp-card.active { border-color: var(--color) !important; background-color: color-mix(in srgb, var(--color) 5%, white) !important; }
+        
+        .emp-card.active { border-color: var(--color) !important; background-color: color-mix(in srgb, var(--color) 5%, white) !important; }
+        
+        /* Estilos intl-tel-input premium */
+        .iti { width: 100%; }
+        .iti__country-list { 
+            border-radius: 1.5rem; 
+            padding: 0.5rem; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+        .iti__selected-dial-code { font-weight: 600; color: #1e293b; }
+        .iti__selected-flag { border-radius: 0.8rem 0 0 0.8rem; background-color: #f8fafc; border-right: 1px solid #e2e8f0; width: 85px !important; }
+        .iti__tel-input { 
+            border-radius: 0.8rem !important; 
+            padding-top: 0.875rem !important; 
+            padding-bottom: 0.875rem !important;
+            font-weight: 500 !important;
+        }
     </style>
 </head>
 
@@ -253,6 +277,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                 <input type="hidden" name="fecha"          id="h-fecha">
                 <input type="hidden" name="hora"           id="h-hora">
                 <input type="hidden" name="empleado_id"    id="h-empleado_id">
+                <input type="hidden" name="telefono"       id="h-telefono-full">
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Tu nombre completo</label>
@@ -264,10 +289,10 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Número de teléfono</label>
-                    <input type="tel" name="telefono" id="input-telefono" required placeholder="Ej. 5551234567"
+                    <input type="tel" id="input-telefono" required placeholder="5551234567"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
-                    <p id="error-telefono" class="hidden text-xs text-red-500 font-bold mt-1.5 ml-1">Debe contener exactamente 10 dígitos.</p>
+                    <p id="error-telefono" class="hidden text-xs text-red-500 font-bold mt-2 ml-1">Por favor ingresa un número de teléfono válido.</p>
                 </div>
 
                 <div class="mt-8 flex gap-3 pt-4">
@@ -613,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Swal.fire({
             icon: 'success',
             title: '¡Cita Confirmada!',
-            text: '<?= addslashes($success) ?>',
+            html: '<?= addslashes($success) ?>',
             confirmButtonColor: 'var(--color)',
             confirmButtonText: 'Aceptar',
             showCancelButton: <?= !empty($cliente['telefono']) ? 'true' : 'false' ?>,
@@ -629,25 +654,36 @@ document.addEventListener('DOMContentLoaded', () => {
     <?php endif; ?>
 
     <?php if ($error): ?>
-        Swal.fire({ icon: 'error', title: 'Error', text: '<?= addslashes($error) ?>', confirmButtonColor: 'var(--color)' });
+        Swal.fire({ icon: 'error', title: 'Error', html: '<?= addslashes($error) ?>', confirmButtonColor: 'var(--color)' });
     <?php endif; ?>
 
     // Validación en tiempo real (As-you-type)
     const btnConfirmar = document.getElementById('btn-final-confirmar');
     const inputNombre  = document.getElementById('input-nombre');
     const inputTel     = document.getElementById('input-telefono');
+    const inputFull    = document.getElementById('h-telefono-full');
     const errorNombre  = document.getElementById('error-nombre');
     const errorTel     = document.getElementById('error-telefono');
 
+    // Inicializar intl-tel-input
+    let iti = window.intlTelInput(inputTel, {
+        initialCountry: "mx",
+        preferredCountries: ["mx", "us"],
+        separateDialCode: true,
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.1/build/js/utils.js",
+    });
+
     function validarFormulario() {
         const valNombre   = inputNombre.value.trim();
-        const valTelefono = inputTel.value.trim();
-
-        const regexNombre   = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-        const regexTelefono = /^\d+$/;
+        const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 
         const nombreOk   = regexNombre.test(valNombre) && valNombre.length > 2;
-        const telefonoOk = regexTelefono.test(valTelefono) && valTelefono.length === 10;
+        const telefonoOk = iti.isValidNumber();
+
+        // Actualizar campo oculto final para la BD
+        if (telefonoOk) {
+            inputFull.value = iti.getNumber();
+        }
 
         // Estilos Nombre
         if (valNombre.length > 0 && !regexNombre.test(valNombre)) {
@@ -658,8 +694,8 @@ document.addEventListener('DOMContentLoaded', () => {
             errorNombre.classList.add('hidden');
         }
 
-        // Estilos Teléfono
-        if (valTelefono.length > 0 && !regexTelefono.test(valTelefono)) {
+        // Estilos Teléfono (solo marcar error si no es válido y no está vacío)
+        if (inputTel.value.length > 0 && !telefonoOk) {
             inputTel.classList.add('border-red-400', 'ring-red-100');
             errorTel.classList.remove('hidden');
         } else {
@@ -682,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputNombre && inputTel) {
         inputNombre.addEventListener('input', validarFormulario);
         inputTel.addEventListener('input', validarFormulario);
+        inputTel.addEventListener('countrychange', validarFormulario);
         validarFormulario(); // Inicializar estado
     }
 });

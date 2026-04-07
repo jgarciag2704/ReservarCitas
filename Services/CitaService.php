@@ -28,9 +28,10 @@ class CitaService {
             return ['status' => false, 'message' => '⚠️ El nombre solo debe contener letras.'];
         }
 
-        // Validación de Teléfono (exactamente 10 números)
-        if (!preg_match("/^\d{10}$/", $data['telefono'])) {
-            return ['status' => false, 'message' => '⚠️ El teléfono debe contener exactamente 10 dígitos numéricos.'];
+        // Validación de Teléfono (LADA + 10 números)
+        // Permite un "+" opcional seguido de 11 a 14 dígitos totales (LADA + número)
+        if (!preg_match("/^\+?\d{11,14}$/", $data['telefono'])) {
+            return ['status' => false, 'message' => '⚠️ El teléfono es inválido. Recuerda que debe tener la LADA y los 10 dígitos.'];
         }
 
         $empleadoId = !empty($data['empleado_id']) ? (int)$data['empleado_id'] : null;
@@ -101,7 +102,7 @@ class CitaService {
 
                 return [
                     'status' => true, 
-                    'message' => "✅ ¡Cita confirmada! Te esperamos el **{$fechaLegible}** a las **{$horaLegible}**."
+                    'message' => "✅ ¡Cita confirmada! Te esperamos el <b>{$fechaLegible}</b> a las <b>{$horaLegible}</b>."
                 ];
             }
 

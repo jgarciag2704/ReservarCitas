@@ -24,13 +24,13 @@ $badgeClasses   = [
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
 
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10 bg-slate-50">
 
-        <div class="mb-8">
+        <div class="mb-8 mt-4 md:mt-0">
             <h1 class="text-3xl font-bold text-gray-900">Citas</h1>
             <p class="text-gray-500 mt-1">Gestiona todas las citas de tu negocio</p>
         </div>
