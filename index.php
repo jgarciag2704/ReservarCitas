@@ -3,8 +3,11 @@
 //exit;
 session_start();
 
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/Helpers/csrf.php';
+// ✅ Definir la ruta base del proyecto (Absolute Path)
+define('BASE_PATH', __DIR__ . '/');
+
+require_once BASE_PATH . 'config/database.php';
+require_once BASE_PATH . 'Helpers/csrf.php';
 verificarCSRF();
 
 // ✅ Crear instancia y conexión

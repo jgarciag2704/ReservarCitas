@@ -1,6 +1,6 @@
 <?php
-require_once 'Models/Cita.php';
-require_once 'Models/Horario.php';
+require_once BASE_PATH . 'Models/Cita.php';
+require_once BASE_PATH . 'Models/Horario.php';
 
 class CitaService {
     private $db;

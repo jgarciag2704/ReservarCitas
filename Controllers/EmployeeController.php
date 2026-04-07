@@ -1,6 +1,6 @@
 <?php
-require_once 'Models/Empleado.php';
-require_once 'Models/Cliente.php';
+require_once BASE_PATH . 'Models/Empleado.php';
+require_once BASE_PATH . 'Models/Cliente.php';
 
 class EmployeeController {
 
@@ -48,7 +48,7 @@ class EmployeeController {
         $negocioActual = $this->negocioActual;
 
         // Cargar todos los servicios del negocio (para el modal de asignación)
-        require_once 'Models/Servicio.php';
+        require_once BASE_PATH . 'Models/Servicio.php';
         $servicioModel  = new Servicio($this->db);
         $todosServicios = $servicioModel->getByCliente($this->clienteId);
 
@@ -59,7 +59,7 @@ class EmployeeController {
             $serviciosAsignados[$emp['id']] = array_column($asignados, 'id');
         }
 
-        require 'Views/Admin/empleados.php';
+        require BASE_PATH . 'Views/Admin/empleados.php';
     }
 
     // =========================================================================

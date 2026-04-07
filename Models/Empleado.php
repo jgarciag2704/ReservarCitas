@@ -1,5 +1,5 @@
 <?php
-require_once 'Models/BaseModel.php';
+require_once BASE_PATH . 'Models/BaseModel.php';
 
 class Empleado extends BaseModel {
 

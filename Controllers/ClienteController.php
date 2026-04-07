@@ -1,8 +1,8 @@
 <?php
-require_once 'Models/Cliente.php';
-require_once 'Models/Servicio.php';
-require_once 'Models/Horario.php';
-require_once 'Models/Cita.php';
+require_once BASE_PATH . 'Models/Cliente.php';
+require_once BASE_PATH . 'Models/Servicio.php';
+require_once BASE_PATH . 'Models/Horario.php';
+require_once BASE_PATH . 'Models/Cita.php';
 
 class ClienteController {
 
@@ -45,7 +45,7 @@ class ClienteController {
         $whatsapp_text = $_SESSION['booking_whatsapp'] ?? null;
         unset($_SESSION['booking_success'], $_SESSION['booking_error'], $_SESSION['booking_whatsapp']);
 
-        require 'Views/Cliente/reservar.php';
+        require BASE_PATH . 'Views/Cliente/reservar.php';
     }
 
     // =========================================================================
@@ -60,7 +60,7 @@ class ClienteController {
 
         $slug = trim($_POST['slug'] ?? '');
 
-        require_once 'Services/CitaService.php';
+        require_once BASE_PATH . 'Services/CitaService.php';
         $citaService = new CitaService($this->db);
 
         $cliente = $this->clienteModel->getBySlug($slug);
@@ -122,7 +122,7 @@ class ClienteController {
         }
         $empleadoIds = array_column($empleadosAsignados, 'id');
 
-        require_once 'Services/CitaService.php';
+        require_once BASE_PATH . 'Services/CitaService.php';
         $citaService = new CitaService($this->db);
 
         $disponibles = [];
@@ -219,7 +219,7 @@ class ClienteController {
 
         $empleadoIds = array_column($empleados, 'id');
 
-        require_once 'Services/CitaService.php';
+        require_once BASE_PATH . 'Services/CitaService.php';
         $citaService = new CitaService($this->db);
 
         $ocupados   = array_map('intval', $this->citaModel->getEmpleadosOcupadosEnHora($cliente_id, $fecha, $hora));

@@ -1,8 +1,8 @@
 <?php
-require_once 'Models/Servicio.php';
-require_once 'Models/Horario.php';
-require_once 'Models/Cita.php';
-require_once 'Models/Cliente.php';
+require_once BASE_PATH . 'Models/Servicio.php';
+require_once BASE_PATH . 'Models/Horario.php';
+require_once BASE_PATH . 'Models/Cita.php';
+require_once BASE_PATH . 'Models/Cliente.php';
 
 class AdminController {
 
@@ -71,7 +71,7 @@ class AdminController {
 
         $negocioActual = $this->negocioActual;
 
-        require 'Views/Admin/dashboard.php';
+        require BASE_PATH . 'Views/Admin/dashboard.php';
     }
 
     // =========================================================================
@@ -82,7 +82,7 @@ class AdminController {
         $servicios = $this->servicioModel->getByCliente($this->clienteId);
 
         // Pasar empleados del negocio para el modal de asignación
-        require_once 'Models/Empleado.php';
+        require_once BASE_PATH . 'Models/Empleado.php';
         $empleadoModel = new Empleado($this->db);
         $todosEmpleados = $empleadoModel->getByCliente($this->clienteId);
 
@@ -93,7 +93,7 @@ class AdminController {
             $asignaciones[$s['id']] = array_column($asignados, 'id');
         }
 
-        require 'Views/Admin/servicios.php';
+        require BASE_PATH . 'Views/Admin/servicios.php';
     }
 
     public function storeServicio(): void {
@@ -168,11 +168,11 @@ class AdminController {
         $horarios = $this->horarioModel->getByCliente($this->clienteId);
 
         // También necesitamos los empleados para el selector del modal
-        require_once 'Models/Empleado.php';
+        require_once BASE_PATH . 'Models/Empleado.php';
         $empleadoModel = new Empleado($this->db);
         $empleados = $empleadoModel->getByCliente($this->clienteId);
 
-        require 'Views/Admin/horarios.php';
+        require BASE_PATH . 'Views/Admin/horarios.php';
     }
 
     public function storeHorario(): void {
@@ -270,7 +270,7 @@ class AdminController {
     public function citas(): void {
         $citas     = $this->citaModel->getByCliente($this->clienteId);
         $servicios = $this->servicioModel->getByCliente($this->clienteId);
-        require 'Views/Admin/citas.php';
+        require BASE_PATH . 'Views/Admin/citas.php';
     }
 
     public function updateCita(): void {
@@ -394,10 +394,10 @@ class AdminController {
     // CALENDARIO
     // =========================================================================
     public function calendario(): void {
-        require_once 'Models/Empleado.php';
+        require_once BASE_PATH . 'Models/Empleado.php';
         $empleadoModel  = new Empleado($this->db);
         $empleadosFiltro = $empleadoModel->getByCliente($this->clienteId);
-        require 'Views/Admin/calendario.php';
+        require BASE_PATH . 'Views/Admin/calendario.php';
     }
 
     public function apiEventos(): void {
@@ -445,7 +445,7 @@ class AdminController {
     public function ajustes(): void {
         $this->checkSoloAdmin();
         $negocio = $this->negocioActual;
-        require 'Views/Admin/ajustes.php';
+        require BASE_PATH . 'Views/Admin/ajustes.php';
     }
 
     public function updateAjustes(): void {
@@ -516,6 +516,6 @@ class AdminController {
             return in_array($c['estado'], ['pendiente', 'confirmada']);
         });
 
-        require 'Views/Admin/recordatorios.php';
+        require BASE_PATH . 'Views/Admin/recordatorios.php';
     }
 }

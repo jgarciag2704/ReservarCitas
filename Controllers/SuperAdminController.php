@@ -1,6 +1,6 @@
 <?php
-require_once 'Models/Cliente.php';
-require_once 'Models/Usuario.php';
+require_once BASE_PATH . 'Models/Cliente.php';
+require_once BASE_PATH . 'Models/Usuario.php';
 
 class SuperAdminController {
     private $db;
@@ -25,7 +25,7 @@ class SuperAdminController {
     // 📌 LISTAR CLIENTES
     public function index() {
         $clientes = $this->clienteModel->getAll();
-        require 'views/superadmin/clientes.php';
+        require BASE_PATH . 'Views/SuperAdmin/clientes.php';
     }
 
     // 📌 CREAR CLIENTE + ADMIN

@@ -1,5 +1,5 @@
 <?php
-require_once 'Models/Usuario.php';
+require_once BASE_PATH . 'Models/Usuario.php';
 class AuthController {
 
     private $db;
@@ -14,7 +14,7 @@ class AuthController {
         if (isset($_SESSION['user'])) {
             $this->redirigirSegunRol($_SESSION['user']['rol']);
         }
-        require 'Views/Auth/Login.php';
+        require BASE_PATH . 'Views/Auth/Login.php';
     }
 
     // ── Procesar credenciales ──────────────────────────────────────────────────
