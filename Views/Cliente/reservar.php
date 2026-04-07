@@ -11,8 +11,9 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
     <meta name="description" content="Agenda tu cita en <?= htmlspecialchars($cliente['nombre']) ?> de forma rápida y sencilla.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; } </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
 
         :root { --color: <?= htmlspecialchars($colorPrimario) ?>; }
 
