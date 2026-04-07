@@ -7,7 +7,7 @@ unset($_SESSION['error_login']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión – Control de Citas</title>
+    <title>Iniciar Sesión – Reservia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -27,7 +27,7 @@ unset($_SESSION['error_login']);
     <!-- Logo / título -->
     <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-4 text-2xl">📅</div>
-        <h1 class="text-2xl font-bold text-white">Control de Citas</h1>
+        <h1 class="text-2xl font-bold text-white">Reservia</h1>
         <p class="text-blue-300 text-sm mt-1">Accede a tu panel de administración</p>
     </div>
 

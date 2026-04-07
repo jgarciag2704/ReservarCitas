@@ -13,7 +13,14 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
     <title>Horarios – Panel Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .day-label.active {
+            background-color: var(--brand-color-soft) !important;
+            border-color: var(--brand-color) !important;
+            color: var(--brand-color) !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
@@ -119,14 +126,30 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
         <form method="POST" action="index.php?controller=admin&action=storeHorario" class="space-y-4">
             <?= csrf_field() ?>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Día de la semana</label>
-                <select name="dia" required
-                           class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand outline-none">
-                    <option value="">Selecciona un día</option>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Día de la semana (Selecciona uno o más)</label>
+                <div class="grid grid-cols-4 gap-2 mb-3">
                     <?php foreach ($dias as $d): ?>
-                        <option value="<?= $d ?>"><?= $d ?></option>
+                        <label class="day-label flex flex-col items-center justify-center p-2 border rounded-xl cursor-pointer hover:bg-gray-50 transition-all border-gray-200">
+                            <input type="checkbox" name="dias[]" value="<?= $d ?>" class="hidden day-checkbox" onchange="this.parentElement.classList.toggle('active', this.checked)">
+                            <span class="text-xs font-medium"><?= $d ?></span>
+                        </label>
                     <?php endforeach; ?>
-                </select>
+                </div>
+                <!-- Botones rápidos -->
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="selectDays('semana')" 
+                            class="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                        Lunes a Viernes
+                    </button>
+                    <button type="button" onclick="selectDays('finde')" 
+                            class="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                        Sábado y Domingo
+                    </button>
+                    <button type="button" onclick="selectDays('todos')" 
+                            class="text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                        Todos
+                    </button>
+                </div>
             </div>
 
             <div>
@@ -245,6 +268,24 @@ function filterTable() {
         const text = row.getElementsByClassName('empleado-col')[0].innerText.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
     }
+}
+
+function selectDays(type) {
+    const checkboxes = document.querySelectorAll('.day-checkbox');
+    const semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+    const finde = ['Sábado', 'Domingo'];
+
+    checkboxes.forEach(cb => {
+        if (type === 'semana') {
+            cb.checked = semana.includes(cb.value);
+        } else if (type === 'finde') {
+            cb.checked = finde.includes(cb.value);
+        } else if (type === 'todos') {
+            cb.checked = true;
+        }
+        // Disparar el evento change manualmente para actualizar el estilo
+        cb.parentElement.classList.toggle('active', cb.checked);
+    });
 }
 </script>
 

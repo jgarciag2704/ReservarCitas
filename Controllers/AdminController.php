@@ -182,26 +182,33 @@ class AdminController {
             exit;
         }
 
-        $dia        = trim($_POST['dia'] ?? '');
+        $dias       = $_POST['dias'] ?? [];
         $inicio     = trim($_POST['inicio'] ?? '');
         $fin        = trim($_POST['fin'] ?? '');
         $empleadoId = !empty($_POST['empleado_id']) ? (int)$_POST['empleado_id'] : null;
 
-        if (!$dia || !$inicio || !$fin) {
-            $_SESSION['error'] = 'Todos los campos son obligatorios.';
+        if (empty($dias) || !$inicio || !$fin) {
+            $_SESSION['error'] = 'Debes seleccionar al menos un día y definir las horas.';
             header('Location: index.php?controller=admin&action=horarios');
             exit;
         }
 
-        $this->horarioModel->crear([
-            'cliente_id'  => $this->clienteId,
-            'empleado_id' => $empleadoId,
-            'dia'         => $dia,
-            'inicio'      => $inicio,
-            'fin'         => $fin,
-        ]);
+        // Convertir a array si solo vino uno (por si acaso cambias el input a single en el futuro)
+        if (!is_array($dias)) {
+            $dias = [$dias];
+        }
 
-        $_SESSION['success'] = 'Horario guardado.';
+        foreach ($dias as $dia) {
+            $this->horarioModel->crear([
+                'cliente_id'  => $this->clienteId,
+                'empleado_id' => $empleadoId,
+                'dia'         => trim($dia),
+                'inicio'      => $inicio,
+                'fin'         => $fin,
+            ]);
+        }
+
+        $_SESSION['success'] = 'Horarios guardados correctamente.';
         header('Location: index.php?controller=admin&action=horarios');
     }
 

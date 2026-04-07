@@ -280,16 +280,53 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
     });
 
     function copiarLink(texto, boton) {
-    navigator.clipboard.writeText(texto).then(() => {
-        const originalText = boton.querySelector('span').innerText;
-        boton.querySelector('span').innerText = '¡Copiado!';
-        boton.classList.add('bg-brand-soft', 'text-brand', 'border-brand');
-        setTimeout(() => {
-            boton.querySelector('span').innerText = originalText;
-            boton.classList.remove('bg-brand-soft', 'text-brand', 'border-brand');
-        }, 2000);
-    });
-}
+        const span = boton.querySelector('span');
+        const originalText = span ? span.innerText : 'Copiar mi link de citas';
+
+        const updateUI = () => {
+            if (span) span.innerText = '¡Copiado!';
+            boton.classList.add('bg-brand-soft', 'text-brand', 'border-brand');
+            setTimeout(() => {
+                if (span) span.innerText = originalText;
+                boton.classList.remove('bg-brand-soft', 'text-brand', 'border-brand');
+            }, 2000);
+        };
+
+        // Intento moderno con Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(texto).then(updateUI).catch(err => {
+                console.error('Error al copiar: ', err);
+                fallbackCopyTextToClipboard(texto, updateUI);
+            });
+        } else {
+            // Fallback para contextos no seguros o navegadores viejos
+            fallbackCopyTextToClipboard(texto, updateUI);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text, callback) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Aseguramos que no se vea el textarea
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) callback();
+        } catch (err) {
+            console.error('Fallback: Error al copiar', err);
+        }
+
+        document.body.removeChild(textArea);
+    }
 </script>
 
 </body>
