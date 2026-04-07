@@ -1,6 +1,12 @@
 <?php
-session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+echo "Entró al index<br>";
+flush();
+session_start();
+/*
 require_once 'config/Database.php';
 
 require_once 'Helpers/csrf.php';
@@ -67,3 +73,4 @@ if (!method_exists($ctrl, $action)) {
 }
 
 $ctrl->$action();
+*/
