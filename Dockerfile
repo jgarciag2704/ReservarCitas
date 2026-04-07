@@ -1,16 +1,15 @@
 FROM php:8.2-fpm
 
-RUN apt-get update && apt-get install -y nginx
+# 🔥 instalar nginx + envsubst
+RUN apt-get update && apt-get install -y nginx gettext
 
 RUN docker-php-ext-install pdo pdo_mysql
 
 WORKDIR /var/www/html
 COPY . .
 
-# Copiar template nginx
 COPY default.conf.template /etc/nginx/templates/default.conf.template
 
-# Logs visibles
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log
 
