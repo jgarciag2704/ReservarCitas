@@ -7,4 +7,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "echo PORT=$PORT && php -S 0.0.0.0:${PORT:-8080} -t ."]
+CMD ["sh", "-c", "php -S 0.0.0.0:8080 -t . & sleep infinity"]
