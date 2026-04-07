@@ -143,7 +143,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
              PASO 1: ELEGIR SERVICIO
         ═══════════════════════════════════════════════════════════════════ -->
         <div id="step-1" class="step active">
-            <div class="mb-6 mb-8 text-center pt-2">
+            <div class="mb-8 text-center pt-2">
                 <h2 class="text-2xl font-extrabold text-slate-800">Elige un servicio</h2>
                 <p class="text-slate-500 mt-1">¿En qué podemos ayudarte hoy?</p>
             </div>
@@ -176,7 +176,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
             <div class="mb-6 text-center">
                 <h2 class="text-2xl font-extrabold text-slate-800">¿Cuándo te esperamos?</h2>
-                <p class="text-slate-500 mt-1">Has elegido <strong id="resumen-servicio" class="text-slate-800 font-bold"></strong></p>
+                <p class="text-slate-500 mt-1">Has elegido: <strong id="resumen-servicio" class="text-slate-800 font-bold"></strong></p>
             </div>
 
             <div class="bg-slate-50 rounded-2xl p-5 space-y-6 border border-slate-100">
@@ -226,8 +226,8 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
         <div id="step-3" class="step pt-2">
 
             <div class="mb-6 text-center">
-                <h2 class="text-2xl font-extrabold text-slate-800">Casi listo</h2>
-                <p class="text-slate-500 mt-1">Completa tus datos para agendar</p>
+                <h2 class="text-2xl font-extrabold text-slate-800">¡Casi listo!</h2>
+                <p class="text-slate-500 mt-1">Completa tus datos para agendar la cita.</p>
             </div>
 
             <!-- Resumen Premium -->
@@ -267,7 +267,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                     <input type="tel" name="telefono" id="input-telefono" required placeholder="Ej. 5551234567"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
-                    <p id="error-telefono" class="hidden text-xs text-red-500 font-bold mt-1.5 ml-1">Debe contener solo números.</p>
+                    <p id="error-telefono" class="hidden text-xs text-red-500 font-bold mt-1.5 ml-1">Debe contener exactamente 10 dígitos.</p>
                 </div>
 
                 <div class="mt-8 flex gap-3 pt-4">
@@ -647,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const regexTelefono = /^\d+$/;
 
         const nombreOk   = regexNombre.test(valNombre) && valNombre.length > 2;
-        const telefonoOk = regexTelefono.test(valTelefono) && valTelefono.length >= 8;
+        const telefonoOk = regexTelefono.test(valTelefono) && valTelefono.length === 10;
 
         // Estilos Nombre
         if (valNombre.length > 0 && !regexNombre.test(valNombre)) {

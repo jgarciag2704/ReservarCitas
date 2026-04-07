@@ -28,9 +28,9 @@ class CitaService {
             return ['status' => false, 'message' => '⚠️ El nombre solo debe contener letras.'];
         }
 
-        // Validación de Teléfono (solo números)
-        if (!preg_match("/^\d+$/", $data['telefono'])) {
-            return ['status' => false, 'message' => '⚠️ El teléfono solo debe contener números.'];
+        // Validación de Teléfono (exactamente 10 números)
+        if (!preg_match("/^\d{10}$/", $data['telefono'])) {
+            return ['status' => false, 'message' => '⚠️ El teléfono debe contener exactamente 10 dígitos numéricos.'];
         }
 
         $empleadoId = !empty($data['empleado_id']) ? (int)$data['empleado_id'] : null;
