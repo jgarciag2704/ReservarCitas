@@ -23,6 +23,16 @@ class CitaService {
             return ['status' => false, 'message' => 'Todos los campos son obligatorios.'];
         }
 
+        // Validación de Nombre (solo letras y espacios)
+        if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $data['nombre'])) {
+            return ['status' => false, 'message' => '⚠️ El nombre solo debe contener letras.'];
+        }
+
+        // Validación de Teléfono (solo números)
+        if (!preg_match("/^\d+$/", $data['telefono'])) {
+            return ['status' => false, 'message' => '⚠️ El teléfono solo debe contener números.'];
+        }
+
         $empleadoId = !empty($data['empleado_id']) ? (int)$data['empleado_id'] : null;
         $fecha      = trim($data['fecha']);
         $hora       = trim($data['hora']);
@@ -85,7 +95,14 @@ class CitaService {
                 // 5. Liberar el bloqueo temporal si existía
                 $this->liberarBloqueo($cliente_id, $fecha, $hora, $empleadoId);
                 $this->db->commit();
-                return ['status' => true, 'message' => "✅ ¡Cita confirmada! Te esperamos el {$fecha} a las {$hora}."];
+
+                $fechaLegible = $this->formatearFechaEspanol($fecha);
+                $horaLegible  = $this->formatearHoraEspanol($hora);
+
+                return [
+                    'status' => true, 
+                    'message' => "✅ ¡Cita confirmada! Te esperamos el **{$fechaLegible}** a las **{$horaLegible}**."
+                ];
             }
 
             $this->db->rollBack();
@@ -223,5 +240,33 @@ class CitaService {
         ");
         $stmt->execute([$empleadoId, $clienteId]);
         return (int)$stmt->fetchColumn() > 0;
+    }
+
+    private function formatearFechaEspanol(string $fecha): string {
+        $timestamp = strtotime($fecha);
+        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        $meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        $diaSemana = $dias[date('w', $timestamp)];
+        $diaNum    = date('j', $timestamp);
+        $mesNum    = (int)date('n', $timestamp);
+        $anio      = date('Y', $timestamp);
+
+        return "{$diaSemana}, {$diaNum} de {$meses[$mesNum]} de {$anio}";
+    }
+
+    private function formatearHoraEspanol(string $hora): string {
+        $timestamp = strtotime($hora);
+        $h = (int)date('G', $timestamp);
+        $m = date('i', $timestamp);
+        
+        $h12  = ($h > 12) ? $h - 12 : ($h == 0 ? 12 : $h);
+        
+        $periodo = '';
+        if ($h >= 6 && $h < 12) $periodo = " de la mañana";
+        else if ($h >= 12 && $h < 19) $periodo = " de la tarde";
+        else if ($h >= 19 || $h < 6) $periodo = " de la noche";
+
+        return "{$h12}:{$m}{$periodo}";
     }
 }

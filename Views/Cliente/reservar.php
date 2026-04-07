@@ -257,13 +257,15 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Tu nombre completo</label>
                     <input type="text" name="nombre" required placeholder="Ej. Ana Lilia Torres"
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="El nombre solo debe contener letras y espacios"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Número de teléfono</label>
-                    <input type="tel" name="telefono" required placeholder="Ej. 555-123-4567"
+                    <input type="tel" name="telefono" required placeholder="Ej. 5551234567"
+                           pattern="\d+" title="El teléfono solo debe contener números"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
                 </div>
@@ -615,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmButtonColor: 'var(--color)',
             confirmButtonText: 'Aceptar',
             showCancelButton: <?= !empty($cliente['telefono']) ? 'true' : 'false' ?>,
-            cancelButtonText: 'Avisar por WhatsApp',
+            cancelButtonText: 'Avisar a <?= htmlspecialchars($cliente['nombre']) ?>',
             cancelButtonColor: '#25D366'
         }).then((result) => {
             if (result.dismiss === Swal.DismissReason.cancel) {
