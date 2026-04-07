@@ -57,20 +57,22 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 <td class="p-4 font-medium"><?= htmlspecialchars($s['nombre']) ?></td>
                                 <td class="p-4"><?= (int)$s['duracion'] ?> min</td>
                                 <td class="p-4">$<?= number_format((float)$s['precio'], 2) ?></td>
-                                <td class="p-4 text-right space-x-2">
-                                    <button onclick='openAsignarModal(<?= (int)$s['id'] ?>, "<?= htmlspecialchars(addslashes($s['nombre'])) ?>")'
-                                            class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                                        👥 Personal
-                                    </button>
-                                    <button onclick='openEditModal(<?= htmlspecialchars(json_encode($s), ENT_QUOTES) ?>)'
-                                            class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                                        Editar
-                                    </button>
-                                    <a href="index.php?controller=admin&action=deleteServicio&id=<?= (int)$s['id'] ?>"
-                                       onclick="return confirmDelete(this.href, '¿Eliminar servicio?', 'Se eliminará permanentemente: <?= htmlspecialchars(addslashes($s['nombre'])) ?>')"
-                                       class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                                        Eliminar
-                                    </a>
+                                <td class="p-4 text-right">
+                                    <div class="flex flex-wrap justify-end gap-2">
+                                        <button onclick='openAsignarModal(<?= (int)$s['id'] ?>, "<?= htmlspecialchars(addslashes($s['nombre'])) ?>")'
+                                                class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-indigo-100 whitespace-nowrap active:scale-95">
+                                            👥 Personal
+                                        </button>
+                                        <button onclick='openEditModal(<?= htmlspecialchars(json_encode($s), ENT_QUOTES) ?>)'
+                                                class="bg-amber-400 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-amber-100 whitespace-nowrap active:scale-95">
+                                            Editar
+                                        </button>
+                                        <a href="index.php?controller=admin&action=deleteServicio&id=<?= (int)$s['id'] ?>"
+                                           onclick="return confirmDelete(this.href, '¿Eliminar servicio?', 'Se eliminará permanentemente: <?= htmlspecialchars(addslashes($s['nombre'])) ?>')"
+                                           class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-rose-100 whitespace-nowrap active:scale-95">
+                                            Eliminar
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

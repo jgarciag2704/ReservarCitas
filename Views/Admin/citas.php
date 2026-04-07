@@ -85,9 +85,10 @@ $badgeClasses   = [
                                         </span>
                                     </td>
 
-                                    <td class="p-4 text-right space-x-1 whitespace-nowrap">
-                                        <!-- ACEPTAR -->
-                                        <?php if($estado === 'pendiente'): ?>
+                                    <td class="p-4 text-right">
+                                        <div class="flex flex-wrap justify-end gap-2">
+                                            <!-- ACEPTAR -->
+                                            <?php if($estado === 'pendiente'): ?>
                                             <button onclick="gestionarCita(<?= (int)$c['id'] ?>, 'confirmada', '<?= htmlspecialchars($c['telefono']) ?>', '<?= rawurlencode($c['nombre_cliente']) ?>', '<?= $c['fecha'] ?>', '<?= $c['hora'] ?>', 'aceptar')" 
                                                     class="inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm" title="Aceptar y enviar WhatsApp">
                                                  Aceptar

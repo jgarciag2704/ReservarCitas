@@ -18,24 +18,24 @@
 </head>
 <body class="text-slate-800 antialiased">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex flex-col md:flex-row h-screen overflow-hidden">
     <?php require 'Views/Admin/_sidebar.php'; ?>
 
-    <main class="flex-1 overflow-y-auto p-10">
-        <div class="flex items-center justify-between mb-6">
+    <main class="flex-1 overflow-y-auto p-4 md:p-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 mt-4 md:mt-0">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Agenda Visual</h1>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-1">Agenda Visual</h1>
                 <p class="text-slate-500 font-medium">Gestiona tus citas desde el calendario interactivo</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
                 <!-- Filtro por empleado -->
                 <?php if (!empty($empleadosFiltro)): ?>
-                <div class="flex items-center gap-2">
-                    <label class="text-sm font-semibold text-slate-600">👤 Filtrar:</label>
+                <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">👤 Empleado</label>
                     <select id="filtroEmpleado"
                             onchange="aplicarFiltroEmpleado(this.value)"
-                            class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                        <option value="">Todos los empleados</option>
+                            class="bg-transparent text-sm font-bold text-slate-700 focus:outline-none cursor-pointer">
+                        <option value="">Todos</option>
                         <?php foreach ($empleadosFiltro as $emp): ?>
                             <option value="<?= (int)$emp['id'] ?>">
                                 <?= htmlspecialchars($emp['nombre']) ?>
@@ -46,15 +46,15 @@
                 <?php endif; ?>
 
                 <a href="index.php?controller=admin&action=citas"
-                   class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
+                   class="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-extrabold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                     Vista Lista
                 </a>
             </div>
         </div>
 
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200/60">
-            <div id='calendar'></div>
+        <div class="bg-white p-4 md:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200/60 mb-10 overflow-hidden">
+            <div id='calendar' class="min-h-[500px]"></div>
         </div>
     </main>
 </div>

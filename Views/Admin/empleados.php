@@ -57,7 +57,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             $activos         = count(array_filter($empleados, fn($e) => $e['activo']));
             $inactivos       = $totalEmpleados - $activos;
         ?>
-        <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-2xl p-5 shadow flex items-center gap-4">
                 <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-2xl">👥</div>
                 <div>

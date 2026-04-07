@@ -53,9 +53,12 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
         <!-- Tabla -->
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <?php if (empty($horarios)): ?>
-                <div class="text-center py-16 text-gray-400">
-                    <p class="text-4xl mb-3">🕐</p>
-                    <p>No hay horarios configurados aún.</p>
+                <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-100 mx-4 my-8">
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner">
+                        📅
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">Sin horarios configurados</h3>
+                    <p class="text-slate-500 text-sm max-w-xs mx-auto">Define cuándo están disponibles tus empleados para recibir citas.</p>
                 </div>
             <?php else: ?>
                 <table class="w-full text-sm text-left" id="tablaHorarios">
@@ -73,28 +76,30 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
                             <tr class="border-t hover:bg-gray-50 transition-colors horario-row">
                                 <td class="p-4 empleado-col">
                                     <?php if ($h['empleado_id']): ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            👤 <?= htmlspecialchars($h['empleado_nombre']) ?>
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm">
+                                            <span class="text-xs">👤</span> <?= htmlspecialchars($h['empleado_nombre']) ?>
                                         </span>
                                     <?php else: ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            🏢 Horario General
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-slate-50 text-slate-500 border border-slate-100 shadow-sm">
+                                            <span class="text-xs">🏢</span> Negocio
                                         </span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="p-4 font-medium"><?= htmlspecialchars($h['dia_semana']) ?></td>
                                 <td class="p-4"><?= htmlspecialchars($h['hora_inicio']) ?></td>
                                 <td class="p-4"><?= htmlspecialchars($h['hora_fin']) ?></td>
-                                <td class="p-4 text-right space-x-2">
-                                    <button onclick='openEditModal(<?= json_encode($h) ?>)'
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                                        Editar
-                                    </button>
-                                    <a href="index.php?controller=admin&action=deleteHorario&id=<?= (int)$h['id'] ?>"
-                                       onclick="return confirmDelete(this.href, '¿Eliminar horario?', '¿Seguro que quieres eliminar el horario de <?= htmlspecialchars(addslashes($h['dia_semana'])) ?>?')"
-                                       class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                                        Eliminar
-                                    </a>
+                                <td class="p-4 text-right">
+                                    <div class="flex flex-wrap justify-end gap-2">
+                                        <button onclick='openEditModal(<?= json_encode($h) ?>)'
+                                                class="bg-amber-400 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-amber-100 whitespace-nowrap active:scale-95">
+                                            Editar
+                                        </button>
+                                        <a href="index.php?controller=admin&action=deleteHorario&id=<?= (int)$h['id'] ?>"
+                                           onclick="return confirmDelete(this.href, '¿Eliminar horario?', '¿Seguro que quieres eliminar el horario de <?= htmlspecialchars(addslashes($h['dia_semana'])) ?>?')"
+                                           class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-rose-100 whitespace-nowrap active:scale-95">
+                                            Eliminar
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
