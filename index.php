@@ -1,26 +1,30 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-echo "Entró al index<br>";
-flush();
 session_start();
 
 require_once 'config/Database.php';
-/*
-require_once 'Helpers/csrf.php';
-//verificarCSRF();
 
+require_once 'Helpers/csrf.php';
+verificarCSRF();
+
+// ✅ Crear instancia y conexión
 $db = null;
 
 try {
     $database = new Database();
     $db = $database->connect();
+
+    // Validación adicional
+    $test = $db->query("SELECT 1");
+    if (!$test) {
+        throw new Exception("No se pudo validar la conexión");
+    }
+
 } catch (Exception $e) {
-    echo "Sistema en configuración 🚧";
+    echo "<h2>Sistema en configuración 🚧</h2>";
+    echo "<p>Base de datos no disponible aún.</p>";
     exit;
 }
+
 // ✅ Lógica de Enrutamiento (URLs Amigables y Query Strings)
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $parts = explode('/', $uri);
@@ -73,4 +77,3 @@ if (!method_exists($ctrl, $action)) {
 }
 
 $ctrl->$action();
-*/
