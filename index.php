@@ -1,5 +1,6 @@
 <?php
-echo __DIR__;
+var_dump(scandir(__DIR__));
+exit;
 session_start();
 
 require_once __DIR__ . '/config/Database.php';
