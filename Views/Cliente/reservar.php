@@ -242,7 +242,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                 </div>
             </div>
 
-            <form method="POST" action="index.php?controller=cliente&action=agendar" class="space-y-5">
+            <form id="form-reserva" method="POST" action="index.php?controller=cliente&action=agendar" class="space-y-5" novalidate>
                 <?= csrf_field() ?>
 
                 <!-- Campos ocultos -->
@@ -256,18 +256,18 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Tu nombre completo</label>
-                    <input type="text" name="nombre" required placeholder="Ej. Ana Lilia Torres"
-                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="El nombre solo debe contener letras y espacios"
+                    <input type="text" name="nombre" id="input-nombre" required placeholder="Ej. Ana Lilia Torres"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
+                    <p id="error-nombre" class="hidden text-xs text-red-500 font-bold mt-1.5 ml-1">Solo se permiten letras y espacios.</p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Número de teléfono</label>
-                    <input type="tel" name="telefono" required placeholder="Ej. 5551234567"
-                           pattern="\d+" title="El teléfono solo debe contener números"
+                    <input type="tel" name="telefono" id="input-telefono" required placeholder="Ej. 5551234567"
                            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-800 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all shadow-sm"
                            style="--tw-ring-color: var(--color)">
+                    <p id="error-telefono" class="hidden text-xs text-red-500 font-bold mt-1.5 ml-1">Debe contener solo números.</p>
                 </div>
 
                 <div class="mt-8 flex gap-3 pt-4">
@@ -631,6 +631,59 @@ document.addEventListener('DOMContentLoaded', () => {
     <?php if ($error): ?>
         Swal.fire({ icon: 'error', title: 'Error', text: '<?= addslashes($error) ?>', confirmButtonColor: 'var(--color)' });
     <?php endif; ?>
+
+    // Validación en tiempo real (As-you-type)
+    const btnConfirmar = document.getElementById('btn-final-confirmar');
+    const inputNombre  = document.getElementById('input-nombre');
+    const inputTel     = document.getElementById('input-telefono');
+    const errorNombre  = document.getElementById('error-nombre');
+    const errorTel     = document.getElementById('error-telefono');
+
+    function validarFormulario() {
+        const valNombre   = inputNombre.value.trim();
+        const valTelefono = inputTel.value.trim();
+
+        const regexNombre   = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+        const regexTelefono = /^\d+$/;
+
+        const nombreOk   = regexNombre.test(valNombre) && valNombre.length > 2;
+        const telefonoOk = regexTelefono.test(valTelefono) && valTelefono.length >= 8;
+
+        // Estilos Nombre
+        if (valNombre.length > 0 && !regexNombre.test(valNombre)) {
+            inputNombre.classList.add('border-red-400', 'ring-red-100');
+            errorNombre.classList.remove('hidden');
+        } else {
+            inputNombre.classList.remove('border-red-400', 'ring-red-100');
+            errorNombre.classList.add('hidden');
+        }
+
+        // Estilos Teléfono
+        if (valTelefono.length > 0 && !regexTelefono.test(valTelefono)) {
+            inputTel.classList.add('border-red-400', 'ring-red-100');
+            errorTel.classList.remove('hidden');
+        } else {
+            inputTel.classList.remove('border-red-400', 'ring-red-100');
+            errorTel.classList.add('hidden');
+        }
+
+        // Habilitar / Deshabilitar Botón
+        if (nombreOk && telefonoOk) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.style.opacity = '1';
+            btnConfirmar.style.cursor  = 'pointer';
+        } else {
+            btnConfirmar.disabled = true;
+            btnConfirmar.style.opacity = '0.5';
+            btnConfirmar.style.cursor  = 'not-allowed';
+        }
+    }
+
+    if (inputNombre && inputTel) {
+        inputNombre.addEventListener('input', validarFormulario);
+        inputTel.addEventListener('input', validarFormulario);
+        validarFormulario(); // Inicializar estado
+    }
 });
 </script>
 
