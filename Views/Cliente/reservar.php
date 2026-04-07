@@ -72,6 +72,9 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
             background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 60%);
             top: -50%; left: -50%;
         }
+        .emp-card { cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+        .emp-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .emp-card.active { border-color: var(--color) !important; background-color: color-mix(in srgb, var(--color) 5%, white) !important; }
     </style>
 </head>
 
@@ -437,17 +440,23 @@ function cargarEmpleados(hora) {
                 mostrarPickerError('⚠️ Todos los especialistas están ocupados a esta hora. Elige otra.');
                 return;
             }
+            const picker = document.getElementById('empleadoPicker');
+            if (picker) picker.remove();
 
             if (res.auto_assign) {
-                // Un solo empleado disponible: auto-asignar
+                // Solo un empleado asignado al servicio: auto-asignar
                 const emp = res.empleados[0];
                 estadoCita.empleadoId   = emp.id;
                 estadoCita.empleadoNombre = emp.nombre;
                 mostrarAutoAsignado(emp);
                 document.getElementById('btnSiguiente2').disabled = false;
-            } else {
-                // Múltiples empleados: mostrar picker
+            } else if (res.empleados.length >= 1) {
+                // Múltiples empleados asignados al servicio (aunque solo 1 esté libre ahora): mostrar picker + "Cualquiera"
                 mostrarPickerEmpleados(res.empleados);
+                document.getElementById('btnSiguiente2').disabled = true; // Forzar a elegir
+            } else {
+                // Caso sin empleados o ninguno libre (res.empleados es vacío)
+                document.getElementById('btnSiguiente2').disabled = false;
             }
         })
         .catch(() => {
@@ -477,42 +486,64 @@ function mostrarPickerEmpleados(empleados) {
     const horasContainer = document.getElementById('horasContainer');
     const picker = document.createElement('div');
     picker.id = 'empleadoPicker';
-    picker.className = 'mt-4 space-y-2';
-    picker.innerHTML = `<p class="text-sm font-bold text-slate-700 mb-2">Elige tu especialista:</p>`;
+    picker.className = 'mt-6 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300';
+    
+    let html = `<p class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">¿Quién te gustaría que te atienda?</p>
+                <div class="grid grid-cols-1 gap-3">`;
+
+    // Opción "Cualquiera"
+    html += `
+        <div onclick="elegirEmpleado(this, null, 'Cualquiera (Asignación automática)')" 
+             class="emp-card flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 bg-white shadow-sm ring-brand/10 hover:ring-8">
+            <div class="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-xl flex-shrink-0">
+                ✨
+            </div>
+            <div>
+                <p class="font-bold text-slate-900 leading-tight">Cualquiera</p>
+                <p class="text-xs text-slate-500 font-medium">Asignar al profesional más libre</p>
+            </div>
+            <div class="ml-auto w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot"></div>
+        </div>
+    `;
 
     empleados.forEach(emp => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.dataset.empId   = emp.id;
-        card.dataset.empName = emp.nombre;
-        card.className = 'emp-card w-full flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 hover:border-opacity-50 transition-all text-left';
-        card.style.setProperty('--hover-color', 'var(--color)');
-        card.innerHTML = `
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background-color: var(--color)">
-                ${emp.nombre.charAt(0).toUpperCase()}
+        html += `
+            <div onclick="elegirEmpleado(this, ${emp.id}, '${emp.nombre.replace(/'/g, "\\'")}')" 
+                 class="emp-card flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 bg-white shadow-sm ring-brand/10 hover:ring-8">
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-lg flex-shrink-0" style="background-color: var(--color)">
+                    ${emp.nombre.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                    <p class="font-bold text-slate-900 leading-tight">${emp.nombre}</p>
+                    <p class="text-xs text-emerald-600 font-bold tracking-wide">Disponible</p>
+                </div>
+                <div class="ml-auto w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot"></div>
             </div>
-            <span class="text-sm font-semibold text-slate-700">${emp.nombre}</span>
-            <span class="ml-auto text-xs text-slate-400">Disponible ✓</span>
         `;
-        card.onclick = () => elegirEmpleado(card, emp.id, emp.nombre);
-        picker.appendChild(card);
     });
 
+    html += `</div>`;
+    picker.innerHTML = html;
     horasContainer.after(picker);
 }
 
 function elegirEmpleado(card, id, nombre) {
     document.querySelectorAll('.emp-card').forEach(c => {
-        c.classList.remove('border-opacity-100');
-        c.style.borderColor = '#e2e8f0';
-        c.style.backgroundColor = '';
+        c.classList.remove('active', 'border-brand');
+        c.querySelector('.check-dot').innerHTML = '';
+        c.querySelector('.check-dot').className = 'ml-auto w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot';
     });
-    card.style.borderColor = 'var(--color)';
-    card.style.backgroundColor = 'color-mix(in srgb, var(--color) 8%, white)';
+
+    card.classList.add('active');
+    card.querySelector('.check-dot').className = 'ml-auto w-6 h-6 rounded-full bg-brand border-brand flex items-center justify-center check-dot';
+    card.querySelector('.check-dot').innerHTML = '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
 
     estadoCita.empleadoId   = id;
     estadoCita.empleadoNombre = nombre;
     document.getElementById('btnSiguiente2').disabled = false;
+    
+    // Smooth scroll al botón si se necesita
+    document.getElementById('btnSiguiente2').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function mostrarPickerError(msg) {

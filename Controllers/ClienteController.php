@@ -228,7 +228,10 @@ class ClienteController {
 
         $disponibles = array_values(array_filter($empleados, fn($e) => !in_array((int)$e['id'], $noDisponibles)));
 
-        $autoAssign = (count($disponibles) === 1);
+        // Solo auto-asignar si el servicio TIENE únicamente 1 empleado en total.
+        // Si tiene más de uno, activamos el picker para que el usuario elija o use "Cualquiera",
+        // incluso si en ese horario solo uno está libre (esto da más claridad al usuario).
+        $autoAssign = (count($empleados) === 1);
 
         echo json_encode([
             'empleados'   => $disponibles,

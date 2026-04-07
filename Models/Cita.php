@@ -133,6 +133,35 @@ class Cita extends BaseModel {
     }
 
     /**
+     * Cuenta cuántas citas tiene cada empleado en una fecha específica.
+     * Útil para la rotación/balance de carga al elegir "Cualquiera".
+     */
+    public function getConteoCitasDiaPorEmpleado(int $clienteId, string $fecha, array $empleadoIds): array {
+        if (empty($empleadoIds)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($empleadoIds), '?'));
+        $sql = "SELECT empleado_id, COUNT(*) as total 
+                FROM citas 
+                WHERE cliente_id = ? AND fecha = ? 
+                  AND empleado_id IN ($placeholders)
+                  AND estado NOT IN ('cancelada')
+                GROUP BY empleado_id";
+
+        $params = array_merge([$clienteId, $fecha], $empleadoIds);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        $counts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // [id => total, id => total]
+        
+        // Asegurar que todos los empleados tengan una entrada (aunque sea 0)
+        foreach ($empleadoIds as $id) {
+            if (!isset($counts[$id])) $counts[$id] = 0;
+        }
+        
+        return $counts;
+    }
+
+    /**
      * Estadísticas para el Dashboard: Citas por día (últimos 7 días)
      */
     public function getStatsCitasSemana(int $cliente_id): array {

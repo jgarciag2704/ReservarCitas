@@ -1,6 +1,7 @@
 <?php
 require_once BASE_PATH . 'Models/Cita.php';
 require_once BASE_PATH . 'Models/Horario.php';
+require_once BASE_PATH . 'Models/Servicio.php';
 
 class CitaService {
     private $db;
@@ -38,8 +39,32 @@ class CitaService {
             // 2. Limpiar bloqueos expirados para tener visión real
             $this->limpiarBloqueosExpirados();
 
-            // 3. Verificación Atómica de Disponibilidad (Citas + Bloqueos)
-            // Se usa bloqueo de lectura si fuera necesario, pero con transacciones serializables es ideal.
+            // 3. Si no se eligió empleado (Cualquiera), buscar el disponible con menos carga
+            if ($empleadoId === null && !empty($data['servicio_id'])) {
+                $servicioModel = new Servicio($this->db);
+                $empleadosAsignados = $servicioModel->getEmpleadosPorServicio((int)$data['servicio_id'], $cliente_id);
+                
+                if (!empty($empleadosAsignados)) {
+                    $disponibles = [];
+                    foreach ($empleadosAsignados as $emp) {
+                        if ($this->estaLibre($cliente_id, $fecha, $hora, (int)$emp['id'], true)) {
+                            $disponibles[] = (int)$emp['id'];
+                        }
+                    }
+
+                    if (empty($disponibles)) {
+                        $this->db->rollBack();
+                        return ['status' => false, 'message' => '⚠️ No hay especialistas disponibles para este horario.'];
+                    }
+
+                    // Balance de carga: contar citas del día para los disponibles
+                    $conteos = $this->citaModel->getConteoCitasDiaPorEmpleado($cliente_id, $fecha, $disponibles);
+                    asort($conteos); // Ordenar de menos a más citas
+                    $empleadoId = key($conteos); // El ID del primero (menos cargado)
+                }
+            }
+
+            // 4. Verificación Atómica de Disponibilidad Final
             if (!$this->estaLibre($cliente_id, $fecha, $hora, $empleadoId, true)) {
                 $this->db->rollBack();
                 return ['status' => false, 'message' => '⚠️ El horario ya no está disponible. Por favor, elige otro.'];
