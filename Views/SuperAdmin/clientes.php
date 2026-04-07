@@ -11,6 +11,46 @@ unset($_SESSION['success'], $_SESSION['error'], $_SESSION['warning']);
     <meta charset="UTF-8">
     <title>SuperAdmin - Clientes</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        function confirmDelete(url, title = '¿Estás seguro?', text = 'Esta acción eliminará al cliente y todos sus datos.') {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb', // blue-600
+                cancelButtonColor: '#dc2626', // red-600
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            <?php if ($success): ?>
+                Toast.fire({ icon: 'success', title: '<?= addslashes($success) ?>' });
+            <?php endif; ?>
+            <?php if ($warning): ?>
+                Swal.fire({ icon: 'warning', title: 'Atención', text: '<?= addslashes($warning) ?>' });
+            <?php endif; ?>
+            <?php if ($error): ?>
+                Swal.fire({ icon: 'error', title: 'Error', text: '<?= addslashes($error) ?>' });
+            <?php endif; ?>
+        });
+    </script>
 </head>
 
 <body class="bg-gray-100">
@@ -40,24 +80,6 @@ unset($_SESSION['success'], $_SESSION['error'], $_SESSION['warning']);
             </button>
         </div>
 
-        <!-- ALERTAS -->
-        <?php if ($success): ?>
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                <?= $success ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($warning): ?>
-            <div class="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 border border-yellow-300">
-                <?= $warning ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($error): ?>
-            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-                <?= $error ?>
-            </div>
-        <?php endif; ?>
 
         <!-- TABLA -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -105,7 +127,7 @@ unset($_SESSION['success'], $_SESSION['error'], $_SESSION['warning']);
 
                                 <!-- ELIMINAR -->
                                 <a href="/index.php?controller=superadmin&action=delete&id=<?= $c['id'] ?>"
-   onclick="return confirm('¿Eliminar cliente?')"
+   onclick="return confirmDelete(this.href, '¿Eliminar cliente?', 'Se borrará permanentemente este cliente.')"
    class="bg-red-600 text-white px-3 py-1 rounded">
     Eliminar
 </a>

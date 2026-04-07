@@ -50,19 +50,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
 
-        <!-- ── Alertas ──────────────────────────────────────────────────────── -->
-        <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 shadow-sm">
-                <span class="text-lg">✅</span>
-                <span><?= htmlspecialchars($success) ?></span>
-            </div>
-        <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 shadow-sm">
-                <span class="text-lg">❌</span>
-                <span><?= htmlspecialchars($error) ?></span>
-            </div>
-        <?php endif; ?>
 
         <!-- ── Tarjeta de estadísticas ──────────────────────────────────────── -->
         <?php
@@ -192,7 +179,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                                         </a>
                                         <!-- Eliminar -->
                                         <a href="index.php?controller=employee&action=delete&id=<?= (int)$emp['id'] ?>"
-                                           onclick="return confirm('¿Eliminar permanentemente a <?= htmlspecialchars(addslashes($emp['nombre'])) ?>?')"
+                                           onclick="return confirmDelete(this.href, '¿Eliminar empleado?', '¿Seguro que quieres eliminar permanentemente a <?= htmlspecialchars(addslashes($emp['nombre'])) ?>?')"
                                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                                            title="Eliminar empleado">
                                             🗑️ Eliminar

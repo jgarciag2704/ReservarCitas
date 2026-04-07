@@ -48,17 +48,6 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
             </div>
         </div>
 
-        <!-- Alertas -->
-        <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg mb-6">
-                ✅ <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-6">
-                ❌ <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
 
         <!-- Tabla -->
         <div class="bg-white rounded-2xl shadow overflow-hidden">
@@ -101,7 +90,7 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
                                         Editar
                                     </button>
                                     <a href="index.php?controller=admin&action=deleteHorario&id=<?= (int)$h['id'] ?>"
-                                       onclick="return confirm('¿Eliminar este horario?')"
+                                       onclick="return confirmDelete(this.href, '¿Eliminar horario?', '¿Seguro que quieres eliminar el horario de <?= htmlspecialchars(addslashes($h['dia_semana'])) ?>?')"
                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                                         Eliminar
                                     </a>

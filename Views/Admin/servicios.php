@@ -32,17 +32,6 @@ unset($_SESSION['success'], $_SESSION['error']);
             </button>
         </div>
 
-        <!-- Alertas -->
-        <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg mb-6">
-                ✅ <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-6">
-                ❌ <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
 
         <!-- Tabla -->
         <div class="bg-white rounded-2xl shadow overflow-hidden">
@@ -77,7 +66,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                                         Editar
                                     </button>
                                     <a href="index.php?controller=admin&action=deleteServicio&id=<?= (int)$s['id'] ?>"
-                                       onclick="return confirm('¿Eliminar este servicio?')"
+                                       onclick="return confirmDelete(this.href, '¿Eliminar servicio?', 'Se eliminará permanentemente: <?= htmlspecialchars(addslashes($s['nombre'])) ?>')"
                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                                         Eliminar
                                     </a>

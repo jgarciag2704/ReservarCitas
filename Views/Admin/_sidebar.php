@@ -17,6 +17,63 @@ $brandColor = $this->negocioActual['color'] ?? '#4f46e5';
     .bg-brand-soft { background-color: var(--brand-color-soft) !important; }
     .active-nav { background-color: var(--brand-color) !important; color: white !important; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Configuración global de Toasts (Notificaciones flotantes)
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+    });
+
+    // Función global para confirmar eliminaciones
+    function confirmDelete(url, title = '¿Estás seguro?', text = 'Esta acción es permanente.') {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--brand-color)',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            background: '#fff',
+            borderRadius: '1.5rem',
+            customClass: {
+                confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+                cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+        return false; // Prevenir acción por defecto
+    }
+
+    // Mostrar alertas de PHP automáticamente como SweetAlerts
+    document.addEventListener('DOMContentLoaded', () => {
+        <?php if ($success = ($_SESSION['success'] ?? null)): unset($_SESSION['success']); ?>
+            Toast.fire({ icon: 'success', title: '<?= addslashes($success) ?>' });
+        <?php endif; ?>
+
+        <?php if ($error = ($_SESSION['error'] ?? null)): unset($_SESSION['error']); ?>
+            Swal.fire({ 
+                icon: 'error', 
+                title: '¡Vaya!', 
+                text: '<?= addslashes($error) ?>',
+                confirmButtonColor: 'var(--brand-color)',
+                borderRadius: '1.5rem'
+            });
+        <?php endif; ?>
+    });
+</script>
 <?php
 $esAdmin  = ($admin['rol'] === 'admin');
 $navItems = [

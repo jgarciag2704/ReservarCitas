@@ -35,17 +35,6 @@ $badgeClasses   = [
             <p class="text-gray-500 mt-1">Gestiona todas las citas de tu negocio</p>
         </div>
 
-        <!-- Alertas -->
-        <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg mb-6">
-                ✅ <?= htmlspecialchars($success) ?>
-            </div>
-        <?php endif; ?>
-        <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-6">
-                ❌ <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
 
         <!-- Tabla de citas -->
         <div class="bg-white rounded-2xl shadow overflow-hidden">
@@ -123,7 +112,7 @@ $badgeClasses   = [
 
                                         <!-- ELIMINAR (SIEMPRE DISPONIBLE) -->
                                         <a href="index.php?controller=admin&action=deleteCita&id=<?= (int)$c['id'] ?>"
-                                           onclick="return confirm('¿Eliminar esta cita permanentemente?')"
+                                           onclick="return confirmDelete(this.href, '¿Eliminar cita?', 'Esta cita se borrará permanentemente del sistema.')"
                                            class="inline-flex items-center justify-center w-8 h-8 bg-rose-50 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg transition-all" title="Eliminar del sistema">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </a>
@@ -175,12 +164,12 @@ function gestionarCita(id, estado, telefono = '', nombre = '', fecha = '', hora 
             // Recargar la página para ver cambios
             location.reload();
         } else {
-            alert('Error al actualizar la cita');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al actualizar la cita' });
         }
     })
     .catch(error => {
         console.error('Error completo:', error);
-        alert('Error: ' + error.message);
+        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
     });
 }
 
