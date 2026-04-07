@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Copiar template nginx
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+COPY default.conf.template /etc/nginx/templates/default.conf.template
 
 # Logs visibles
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
