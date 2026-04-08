@@ -148,11 +148,12 @@ class ClienteController {
             $citasDia->execute([$cliente_id, $fecha]);
             $allCitas = $citasDia->fetchAll(PDO::FETCH_ASSOC);
 
+            $ahora = date('Y-m-d H:i:s');
             $bloqueosDia = $this->db->prepare("
                 SELECT hora, empleado_id FROM bloqueos_citas
-                WHERE cliente_id = ? AND fecha = ? AND expira_en > NOW()
+                WHERE cliente_id = ? AND fecha = ? AND expira_en > ?
             ");
-            $bloqueosDia->execute([$cliente_id, $fecha]);
+            $bloqueosDia->execute([$cliente_id, $fecha, $ahora]);
             $allBloqueos = $bloqueosDia->fetchAll(PDO::FETCH_ASSOC);
 
             $disponibles = [];

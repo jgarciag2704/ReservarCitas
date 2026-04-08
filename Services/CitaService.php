@@ -147,7 +147,8 @@ class CitaService {
     // =========================================================================
 
     public function bloquearHorarioTemporal(int $cliente_id, string $fecha, string $hora, ?int $empleadoId = null): bool {
-        $this->limpiarBloqueosExpirados();
+        $ahora = date('Y-m-d H:i:s');
+        $this->limpiarBloqueosExpirados($ahora);
 
         // No bloquear si ya hay una cita o un bloqueo activo
         if (!$this->estaLibre($cliente_id, $fecha, $hora, $empleadoId)) {
@@ -155,11 +156,14 @@ class CitaService {
         }
 
         try {
+            // Calcular expiración en PHP (5 minutos a partir de ahora)
+            $expiracion = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+
             $stmt = $this->db->prepare("
                 INSERT INTO bloqueos_citas (cliente_id, empleado_id, fecha, hora, expira_en)
-                VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
+                VALUES (?, ?, ?, ?, ?)
             ");
-            return $stmt->execute([$cliente_id, $empleadoId, $fecha, $hora]);
+            return $stmt->execute([$cliente_id, $empleadoId, $fecha, $hora, $expiracion]);
         } catch (PDOException $e) {
             // Error 23000 = Duplicate key (otro bloqueo entró justo antes)
             if ($e->getCode() == 23000) return false;
@@ -198,9 +202,10 @@ class CitaService {
      * Verificar si una hora está bajo bloqueo temporal.
      */
     private function estaBloqueado(int $cliente_id, string $fecha, string $hora, ?int $empleadoId = null): bool {
+        $ahora = date('Y-m-d H:i:s');
         $sql = "SELECT COUNT(*) FROM bloqueos_citas 
-                WHERE cliente_id = ? AND fecha = ? AND hora = ? AND expira_en > NOW()";
-        $params = [$cliente_id, $fecha, $hora];
+                WHERE cliente_id = ? AND fecha = ? AND hora = ? AND expira_en > ?";
+        $params = [$cliente_id, $fecha, $hora, $ahora];
 
         if ($empleadoId !== null) {
             $sql .= " AND empleado_id = ?";
@@ -215,12 +220,13 @@ class CitaService {
     }
 
     public function getHorasBloqueadas(int $cliente_id, string $fecha): array {
-        $this->limpiarBloqueosExpirados();
+        $ahora = date('Y-m-d H:i:s');
+        $this->limpiarBloqueosExpirados($ahora);
         $stmt = $this->db->prepare("
             SELECT DISTINCT TIME_FORMAT(hora, '%H:%i') FROM bloqueos_citas
-            WHERE cliente_id = ? AND fecha = ? AND expira_en > NOW()
+            WHERE cliente_id = ? AND fecha = ? AND expira_en > ?
         ");
-        $stmt->execute([$cliente_id, $fecha]);
+        $stmt->execute([$cliente_id, $fecha, $ahora]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
@@ -228,13 +234,14 @@ class CitaService {
      * Retorna IDs de empleados con bloqueo temporal activo en una hora.
      */
     public function getEmpleadosBloqueadosEnHora(int $cliente_id, string $fecha, string $hora): array {
-        $this->limpiarBloqueosExpirados();
+        $ahora = date('Y-m-d H:i:s');
+        $this->limpiarBloqueosExpirados($ahora);
         $stmt = $this->db->prepare("
             SELECT empleado_id FROM bloqueos_citas
-            WHERE cliente_id = ? AND fecha = ? AND hora = ? AND expira_en > NOW()
+            WHERE cliente_id = ? AND fecha = ? AND hora = ? AND expira_en > ?
               AND empleado_id IS NOT NULL
         ");
-        $stmt->execute([$cliente_id, $fecha, $hora]);
+        $stmt->execute([$cliente_id, $fecha, $hora, $ahora]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
@@ -253,8 +260,9 @@ class CitaService {
         $stmt->execute($params);
     }
 
-    private function limpiarBloqueosExpirados(): void {
-        $this->db->prepare("DELETE FROM bloqueos_citas WHERE expira_en <= NOW()")->execute();
+    private function limpiarBloqueosExpirados(?string $ahora = null): void {
+        $ahora = $ahora ?? date('Y-m-d H:i:s');
+        $this->db->prepare("DELETE FROM bloqueos_citas WHERE expira_en <= ?")->execute([$ahora]);
     }
 
     /**
@@ -263,14 +271,26 @@ class CitaService {
     public function ejecutarAutoNoShow(int $clienteId): void {
         $cliente = $this->clienteModel->find($clienteId);
         $tiempo_gracia = (int)($cliente['tiempo_gracia'] ?? 15);
+        $ahora = date('Y-m-d H:i:s');
 
         $stmt = $this->db->prepare("
             UPDATE citas 
             SET estado = 'no_llego'
             WHERE cliente_id = ? AND estado = 'pendiente'
-              AND STR_TO_DATE(CONCAT(fecha, ' ', hora), '%Y-%m-%d %H:%i:%s') < DATE_SUB(NOW(), INTERVAL ? MINUTE)
+              AND STR_TO_DATE(CONCAT(fecha, ' ', hora), '%Y-%m-%d %H:%i:%s') < DATE_SUB(?, INTERVAL ? MINUTE)
         ");
-        $stmt->execute([$clienteId, $tiempo_gracia]);
+        $stmt->execute([$clienteId, $ahora, $tiempo_gracia]);
+
+        // --- RUTINA DE REPARACIÓN ---
+        // Si detectamos citas de hoy marcadas como 'no_llego' pero cuya hora es FUTURA respecto al PHP, las devolvemos a 'pendiente'.
+        $hoy = date('Y-m-d');
+        $hora_actual = date('H:i:s');
+        $stmtFix = $this->db->prepare("
+            UPDATE citas 
+            SET estado = 'pendiente'
+            WHERE cliente_id = ? AND fecha = ? AND hora > ? AND estado = 'no_llego'
+        ");
+        $stmtFix->execute([$clienteId, $hoy, $hora_actual]);
     }
 
     // =========================================================================
