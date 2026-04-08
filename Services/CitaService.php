@@ -28,13 +28,13 @@ class CitaService {
 
         // Validación de Nombre (solo letras y espacios)
         if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $data['nombre'])) {
-            return ['status' => false, 'message' => '⚠️ El nombre solo debe contener letras.'];
+            return ['status' => false, 'message' => 'El nombre solo debe contener letras.'];
         }
 
         // Validación de Teléfono (LADA + 10 números)
         // Permite un "+" opcional seguido de 11 a 14 dígitos totales (LADA + número)
         if (!preg_match("/^\+?\d{11,14}$/", $data['telefono'])) {
-            return ['status' => false, 'message' => '⚠️ El teléfono es inválido. Recuerda que debe tener la LADA y los 10 dígitos.'];
+            return ['status' => false, 'message' => 'El teléfono es inválido. Recuerda que debe tener la LADA y los 10 dígitos.'];
         }
 
         $empleadoId = !empty($data['empleado_id']) ? (int)$data['empleado_id'] : null;
@@ -62,7 +62,7 @@ class CitaService {
                 
                 if (($mesas_ocupadas_actuales + $mesas_requeridas) > $max_mesas_online) {
                     $this->db->rollBack();
-                    return ['status' => false, 'message' => '⚠️ Lo sentimos, no hay suficientes lugares o mesas disponibles para esta hora.'];
+                    return ['status' => false, 'message' => 'Lo sentimos, no hay suficientes lugares o mesas disponibles para esta hora.'];
                 }
 
                 // Asignar null si el empleado no es obligatorio
@@ -72,7 +72,7 @@ class CitaService {
                 // Lógica de validación individual
                 if ($empleadoId !== null && !$this->empleadoPerteneceACliente($empleadoId, $cliente_id)) {
                     $this->db->rollBack();
-                    return ['status' => false, 'message' => '⚠️ Empleado no válido para este negocio.'];
+                    return ['status' => false, 'message' => 'Empleado no válido para este negocio.'];
                 }
 
                 if ($empleadoId === null && !empty($data['servicio_id'])) {
@@ -89,7 +89,7 @@ class CitaService {
 
                         if (empty($disponibles)) {
                             $this->db->rollBack();
-                            return ['status' => false, 'message' => '⚠️ No hay especialistas disponibles para este horario.'];
+                            return ['status' => false, 'message' => 'No hay especialistas disponibles para este horario.'];
                         }
 
                         $conteos = $this->citaModel->getConteoCitasDiaPorEmpleado($cliente_id, $fecha, $disponibles);
@@ -100,7 +100,7 @@ class CitaService {
 
                 if (!$this->estaLibre($cliente_id, $fecha, $hora, $empleadoId, true)) {
                     $this->db->rollBack();
-                    return ['status' => false, 'message' => '⚠️ El horario ya no está disponible. Por favor, elige otro.'];
+                    return ['status' => false, 'message' => 'El horario ya no está disponible. Por favor, elige otro.'];
                 }
             }
 
@@ -129,12 +129,12 @@ class CitaService {
 
                 return [
                     'status' => true, 
-                    'message' => "✅ ¡Cita confirmada! Te esperamos el <b>{$fechaLegible}</b> a las <b>{$horaLegible}</b>."
+                    'message' => "¡Cita confirmada! Te esperamos el <b>{$fechaLegible}</b> a las <b>{$horaLegible}</b>."
                 ];
             }
 
             $this->db->rollBack();
-            return ['status' => false, 'message' => '⚠️ Error al procesar la reserva. Inténtalo de nuevo.'];
+            return ['status' => false, 'message' => 'Error al procesar la reserva. Inténtalo de nuevo.'];
 
         } catch (Exception $e) {
             if ($this->db->inTransaction()) $this->db->rollBack();
@@ -266,7 +266,7 @@ class CitaService {
 
         $stmt = $this->db->prepare("
             UPDATE citas 
-            SET estado = 'no_show'
+            SET estado = 'no_llego'
             WHERE cliente_id = ? AND estado = 'pendiente'
               AND STR_TO_DATE(CONCAT(fecha, ' ', hora), '%Y-%m-%d %H:%i:%s') < DATE_SUB(NOW(), INTERVAL ? MINUTE)
         ");

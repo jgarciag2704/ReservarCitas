@@ -26,15 +26,18 @@ unset($_SESSION['error_login']);
 
     <!-- Logo / título -->
     <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-4 text-2xl">📅</div>
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl mb-4 shadow-lg shadow-blue-500/40">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
         <h1 class="text-2xl font-bold text-white">Reservia</h1>
         <p class="text-blue-300 text-sm mt-1">Accede a tu panel de administración</p>
     </div>
 
     <!-- Error flash -->
     <?php if ($errorLogin): ?>
-        <div class="bg-red-500/20 border border-red-500/40 text-red-300 text-sm px-4 py-3 rounded-xl mb-5">
-            ❌ <?= htmlspecialchars($errorLogin) ?>
+        <div class="bg-red-500/20 border border-red-500/40 text-red-300 text-sm px-4 py-3 rounded-xl mb-5 flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span><?= htmlspecialchars($errorLogin) ?></span>
         </div>
     <?php endif; ?>
 

@@ -45,7 +45,10 @@
 
                 <div class="glass-panel p-8 rounded-3xl shadow-sm border border-slate-200/60 transition-all hover:shadow-md">
                     <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span class="text-brand">🎨</span> Identidad y Marca
+                        <span class="flex items-center justify-center w-8 h-8 bg-brand-soft text-brand rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-3"></path></svg>
+                        </span>
+                        Identidad y Marca
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -93,7 +96,10 @@
                 <!-- Capacidad y Aforo -->
                 <div class="glass-panel p-8 rounded-3xl shadow-sm border border-slate-200/60 transition-all hover:shadow-md">
                     <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span class="text-brand">🏢</span> Configuración de Reservas y Aforo
+                        <span class="flex items-center justify-center w-8 h-8 bg-brand-soft text-brand rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </span>
+                        Configuración de Reservas y Aforo
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">

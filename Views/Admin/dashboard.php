@@ -35,8 +35,9 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
         <!-- Cabecera Premium -->
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 mt-4 md:mt-0">
             <div>
-                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-                    Hola, <span class="text-brand"><?= htmlspecialchars($admin['nombre'] ?? 'Admin') ?></span> 👋
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-2 flex items-center gap-2">
+                    Hola, <span class="text-brand"><?= htmlspecialchars($admin['nombre'] ?? 'Admin') ?></span>
+                    <svg class="w-8 h-8 text-amber-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.757c1.277 0 2.234 1.14 1.956 2.383l-1.332 6.012a2.001 2.001 0 01-1.956 1.605H11.5a2.15 2.15 0 01-1.606-.712l-6.194-6.85a1.2 1.2 0 01.89-2.003L12 10V5.5a2.5 2.5 0 115 0V10z"></path></svg>
                 </h1>
                 <p class="text-slate-500 font-medium flex items-center gap-2">
                     <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -109,7 +110,8 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
                                     <p class="text-sm font-bold text-slate-100 mb-2"><?= $h['hora'] ?></p>
                                     <div class="text-3xl font-black mb-1 <?= $colorCls ?>"><?= $h['libres'] ?></div>
                                     <p class="text-[10px] text-slate-300 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
-                                        🪑 Libres
+                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M5 10V8a2 2 0 012-2h10a2 2 0 012 2v2M7 21v-4m10 4v-4m-12 0h14a1 1 0 001-1v-4a1 1 0 00-1-1H4a1 1 0 00-1 1v4a1 1 0 001 1z"></path></svg>
+                                        Libres
                                     </p>
                                 </div>
                             <?php endforeach; ?>
@@ -169,7 +171,10 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
             <!-- Gráfico 1: Citas esta semana -->
             <div class="glass-panel p-8 rounded-3xl shadow-sm">
                 <h4 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <span class="text-brand">📈</span> Tendencia de Citas (7 días)
+                    <span class="flex items-center justify-center w-8 h-8 bg-brand-soft text-brand rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    </span>
+                    Tendencia de Citas (7 días)
                 </h4>
                 <div class="h-64">
                     <canvas id="chartSemana"></canvas>
@@ -179,7 +184,10 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
             <!-- Gráfico 2: Servicios más populares -->
             <div class="glass-panel p-8 rounded-3xl shadow-sm">
                 <h4 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <span class="text-brand">📊</span> Servicios más pedidos
+                    <span class="flex items-center justify-center w-8 h-8 bg-brand-soft text-brand rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                    </span>
+                    Servicios más pedidos
                 </h4>
                 <div class="h-64">
                     <canvas id="chartServicios"></canvas>
@@ -191,7 +199,9 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
         <div class="glass-panel rounded-3xl shadow-sm p-8 border hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <span class="bg-brand-soft text-brand p-2 rounded-lg">🗓️</span>
+                    <span class="bg-brand-soft text-brand p-2 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </span>
                     Citas Programadas para Hoy
                 </h2>
                 <a href="index.php?controller=admin&action=citas" class="text-sm font-semibold text-brand hover:underline transition-colors">Ver todas &rarr;</a>
@@ -250,6 +260,7 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
                                                 'pendiente'  => 'bg-amber-100/80 text-amber-700 border border-amber-200',
                                                 'confirmada' => 'bg-indigo-100/80 text-indigo-700 border border-indigo-200',
                                                 'completada' => 'bg-emerald-100/80 text-emerald-700 border border-emerald-200',
+                                                'no_llego'   => 'bg-slate-100/80 text-slate-700 border border-slate-200',
                                                 'cancelada'  => 'bg-rose-100/80 text-rose-700 border border-rose-200',
                                             ];
                                             $estado = $c['estado'] ?? 'pendiente';

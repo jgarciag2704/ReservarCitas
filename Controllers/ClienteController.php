@@ -30,14 +30,14 @@ class ClienteController {
 
         if (!$slug) {
             http_response_code(400);
-            die('❌ No se especificó el negocio. Usa: ?controller=cliente&action=index&slug=tu-negocio');
+            die('No se especificó el negocio. Usa: ?controller=cliente&action=index&slug=tu-negocio');
         }
 
         $cliente = $this->clienteModel->getBySlug($slug);
 
         if (!$cliente) {
             http_response_code(404);
-            die('❌ Negocio no encontrado.');
+            die('Negocio no encontrado.');
         }
 
         $servicios = $this->servicioModel->getByCliente($cliente['id']);

@@ -54,8 +54,8 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <?php if (empty($horarios)): ?>
                 <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-100 mx-4 my-8">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner">
-                        📅
+                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner text-slate-300">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <h3 class="text-lg font-bold text-slate-800">Sin horarios configurados</h3>
                     <p class="text-slate-500 text-sm max-w-xs mx-auto">Define cuándo están disponibles tus empleados para recibir citas.</p>
@@ -77,11 +77,11 @@ $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
                                 <td class="p-4 empleado-col">
                                     <?php if ($h['empleado_id']): ?>
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm">
-                                            <span class="text-xs">👤</span> <?= htmlspecialchars($h['empleado_nombre']) ?>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> <?= htmlspecialchars($h['empleado_nombre']) ?>
                                         </span>
                                     <?php else: ?>
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-slate-50 text-slate-500 border border-slate-100 shadow-sm">
-                                            <span class="text-xs">🏢</span> Negocio
+                                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> Negocio
                                         </span>
                                     <?php endif; ?>
                                 </td>

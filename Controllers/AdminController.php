@@ -320,7 +320,7 @@ class AdminController {
         $id     = (int)($_POST['id'] ?? 0);
         $estado = trim($_POST['estado'] ?? '');
 
-        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada', 'no_show'];
+        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido.';
             header('Location: index.php?controller=admin&action=citas');
@@ -367,7 +367,7 @@ class AdminController {
         $id     = (int)($_POST['id'] ?? 0);
         $estado = trim($_POST['estado'] ?? '');
 
-        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada', 'no_show'];
+        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido.';
             header('Location: index.php?controller=admin&action=citas');

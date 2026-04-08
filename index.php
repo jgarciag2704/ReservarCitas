@@ -6,14 +6,14 @@ session_start();
 // Configurar zona horaria por defecto para México (UTC-6)
 date_default_timezone_set('America/Mexico_City');
 
-// ✅ Definir la ruta base del proyecto (Absolute Path)
+// Definir la ruta base del proyecto (Absolute Path)
 define('BASE_PATH', __DIR__ . '/');
 
 require_once BASE_PATH . 'config/database.php';
 require_once BASE_PATH . 'Helpers/csrf.php';
 verificarCSRF();
 
-// ✅ Crear instancia y conexión
+// Crear instancia y conexión
 $db = null;
 
 try {
@@ -27,12 +27,12 @@ try {
     }
 
 } catch (Exception $e) {
-    echo "<h2>Sistema en configuración 🚧</h2>";
+    echo "<h2>Sistema en configuración</h2>";
     echo "<p>Base de datos no disponible aún.</p>";
     exit;
 }
 
-// ✅ Lógica de Enrutamiento (URLs Amigables y Query Strings)
+// Lógica de Enrutamiento (URLs Amigables y Query Strings)
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $parts = explode('/', $uri);
 

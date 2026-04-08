@@ -131,8 +131,8 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
         <?php if (empty($servicios)): ?>
             <div class="text-center py-20">
-                <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                    <span class="text-5xl grayscale opacity-50">😴</span>
+                <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner text-slate-300">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                 </div>
                 <h3 class="text-xl font-bold text-slate-800 mb-2">Sin servicios</h3>
                 <p class="text-slate-500 font-medium">Este negocio aún no ha configurado sus servicios disponibles.</p>
@@ -479,7 +479,7 @@ function cargarEmpleados(hora) {
 
             if (!res.empleados || !res.empleados.length) {
                 // Todos los empleados están ocupados en esta hora
-                mostrarPickerError('⚠️ Todos los especialistas están ocupados a esta hora. Elige otra.');
+                mostrarPickerError('Todos los especialistas están ocupados a esta hora. Elige otra.');
                 return;
             }
             const picker = document.getElementById('empleadoPicker');
@@ -537,8 +537,8 @@ function mostrarPickerEmpleados(empleados) {
     html += `
         <div onclick="elegirEmpleado(this, null, 'Cualquiera (Asignación automática)')" 
              class="emp-card flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 bg-white shadow-sm ring-brand/10 hover:ring-8">
-            <div class="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-xl flex-shrink-0">
-                ✨
+            <div class="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white flex-shrink-0">
+                <svg class="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.143-7.714L1 12l7.714-2.143L11 3z"></path></svg>
             </div>
             <div>
                 <p class="font-bold text-slate-900 leading-tight">Cualquiera</p>
@@ -623,7 +623,7 @@ irPaso = async function(n) {
             const data = await res.json();
 
             if (!data.success) {
-                Swal.fire({ icon: 'error', title: '¡Oops!', text: '⚠️ Uy, alguien más acaba de seleccionar esta hora. Por favor elige otra.' });
+                Swal.fire({ icon: 'error', title: '¡Oops!', text: 'Uy, alguien más acaba de seleccionar esta hora. Por favor elige otra.' });
                 cargarHoras(estadoCita.fecha);
                 return;
             }

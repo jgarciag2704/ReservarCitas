@@ -26,7 +26,10 @@
         <div class="glass-panel rounded-3xl shadow-sm overflow-hidden border border-slate-200/60">
             <div class="p-6 border-b bg-slate-50/50 flex items-center justify-between">
                 <h2 class="text-lg font-bold text-slate-800 flex items-center gap-3">
-                    <span class="text-brand">📅</span> Citas de Mañana: <?= date('d/m/Y', strtotime('+1 day')) ?>
+                    <span class="flex items-center justify-center w-8 h-8 bg-brand-soft text-brand rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </span>
+                    Citas de Mañana: <?= date('d/m/Y', strtotime('+1 day')) ?>
                 </h2>
                 <span class="bg-brand-soft text-brand px-3 py-1 rounded-lg text-xs font-bold tracking-wider uppercase">
                     <?= count($citas) ?> Pendientes

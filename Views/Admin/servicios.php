@@ -2,6 +2,7 @@
 $success = $_SESSION['success'] ?? null;
 $error   = $_SESSION['error']   ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
+$esCapacidad = ($this->negocioActual['tipo_reserva'] ?? 'individual') === 'capacidad';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -38,7 +39,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <?php if (empty($servicios)): ?>
                 <div class="text-center py-16 text-gray-400">
-                    <p class="text-4xl mb-3">🛠️</p>
+                    <p class="text-4xl mb-3 flex justify-center"><svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></p>
                     <p>No hay servicios registrados aún.</p>
                 </div>
             <?php else: ?>
@@ -59,18 +60,20 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 <td class="p-4">$<?= number_format((float)$s['precio'], 2) ?></td>
                                 <td class="p-4 text-right">
                                     <div class="flex flex-wrap justify-end gap-2">
+                                        <?php if (!$esCapacidad): ?>
                                         <button onclick='openAsignarModal(<?= (int)$s['id'] ?>, "<?= htmlspecialchars(addslashes($s['nombre'])) ?>")'
-                                                class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-indigo-100 whitespace-nowrap active:scale-95">
-                                            👥 Personal
+                                                class="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-indigo-100 whitespace-nowrap active:scale-95">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg> Personal
                                         </button>
+                                        <?php endif; ?>
                                         <button onclick='openEditModal(<?= htmlspecialchars(json_encode($s), ENT_QUOTES) ?>)'
-                                                class="bg-amber-400 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-amber-100 whitespace-nowrap active:scale-95">
-                                            Editar
+                                                class="flex items-center gap-1.5 bg-amber-400 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-amber-100 whitespace-nowrap active:scale-95">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar
                                         </button>
                                         <a href="index.php?controller=admin&action=deleteServicio&id=<?= (int)$s['id'] ?>"
                                            onclick="return confirmDelete(this.href, '¿Eliminar servicio?', 'Se eliminará permanentemente: <?= htmlspecialchars(addslashes($s['nombre'])) ?>')"
-                                           class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-rose-100 whitespace-nowrap active:scale-95">
-                                            Eliminar
+                                           class="flex items-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-extrabold transition-all shadow-lg shadow-rose-100 whitespace-nowrap active:scale-95">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                                         </a>
                                     </div>
                                 </td>
@@ -225,7 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
             <div>
-                <h3 class="text-lg font-bold text-gray-900">👥 Personal del servicio</h3>
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Personal del servicio
+                </h3>
                 <p id="asig_titulo" class="text-sm text-gray-500 mt-0.5"></p>
             </div>
             <button onclick="closeAsignarModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>

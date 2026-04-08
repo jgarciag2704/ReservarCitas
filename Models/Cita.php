@@ -162,7 +162,7 @@ class Cita extends BaseModel {
              FROM citas c
              LEFT JOIN servicios s ON c.servicio_id = s.id
              WHERE c.cliente_id = ? AND c.fecha = ?
-               AND c.estado NOT IN ('cancelada', 'finalizada', 'no_show')
+               AND c.estado NOT IN ('cancelada', 'finalizada', 'no_llego')
                AND TIME(STR_TO_DATE(?, '%H:%i')) >= c.hora
                AND TIME(STR_TO_DATE(?, '%H:%i')) < ADDTIME(c.hora, SEC_TO_TIME(COALESCE(s.duracion, 30) * 60))"
         );
