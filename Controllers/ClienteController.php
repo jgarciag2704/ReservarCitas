@@ -95,10 +95,15 @@ class ClienteController {
     // GET: ?controller=cliente&action=horasDisponibles&cliente_id=X&servicio_id=Y&fecha=YYYY-MM-DD
     // =========================================================================
     public function horasDisponibles(): void {
-        header('Content-Type: application/json');
+        // Desactivar visualización de errores para que no ensucien el JSON
+        error_reporting(0);
+        ini_set('display_errors', 0);
         
-        // Limpiar cualquier salida previa (Warnings/Notices) para no romper el JSON
+        // Iniciar captura de buffer y limpiar cualquier residuo
+        ob_start();
         if (ob_get_length()) ob_clean();
+
+        header('Content-Type: application/json');
 
         try {
             $cliente_id  = (int)($_GET['cliente_id']  ?? 0);
