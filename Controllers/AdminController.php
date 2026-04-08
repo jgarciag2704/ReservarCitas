@@ -96,8 +96,8 @@ class AdminController {
             foreach ($horariosGral as $h) {
                 $inicio = strtotime($h['hora_inicio']);
                 $fin    = strtotime($h['hora_fin']);
-                for ($t = $inicio; $t < $fin; $t += 3600) { // Saltos de 1 hora para bloque
-                    $horaStr = date('H:00', $t); 
+                for ($t = $inicio; $t < $fin; $t += 1800) { // Saltos de 30 minutos para mayor precisión
+                    $horaStr = date('H:i', $t); 
                     if (!isset($mesasOcupadasHoy[$horaStr])) {
                         $ocup = $this->citaModel->getMesasOcupadasEnHora($this->clienteId, $hoy, $horaStr);
                         $mesasOcupadasHoy[$horaStr] = [
