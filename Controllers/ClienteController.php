@@ -93,154 +93,169 @@ class ClienteController {
     // API JSON: horas disponibles para una fecha + servicio
     // Opción B: un slot está disponible si AL MENOS UN empleado asignado está libre
     // GET: ?controller=cliente&action=horasDisponibles&cliente_id=X&servicio_id=Y&fecha=YYYY-MM-DD
-    // =========================================================================
-    public function horasDisponibles(): void {
+    // =================================================================    public function horasDisponibles(): void {
         header('Content-Type: application/json');
+        
+        // Limpiar cualquier salida previa (Warnings/Notices) para no romper el JSON
+        if (ob_get_length()) ob_clean();
 
-        $cliente_id  = (int)($_GET['cliente_id']  ?? 0);
-        $servicio_id = (int)($_GET['servicio_id'] ?? 0);
-        $fecha       = trim($_GET['fecha']         ?? '');
+        try {
+            $cliente_id  = (int)($_GET['cliente_id']  ?? 0);
+            $servicio_id = (int)($_GET['servicio_id'] ?? 0);
+            $fecha       = trim($_GET['fecha']         ?? '');
 
-        if (!$cliente_id || !$fecha) {
-            echo json_encode([]);
-            exit;
-        }
+            if (!$cliente_id || !$fecha) {
+                echo json_encode([]);
+                exit;
+            }
 
-        // Día de la semana en español
-        $diasEs    = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-        $diaSemana = $diasEs[(int)date('w', strtotime($fecha))];
+            // Día de la semana en español
+            $diasEs    = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            $timestamp = strtotime($fecha);
+            if (!$timestamp) { echo json_encode([]); exit; }
+            $diaSemana = $diasEs[(int)date('w', $timestamp)];
 
-        $cliente        = $this->clienteModel->find($cliente_id);
-        $tipo_reserva   = $cliente['tipo_reserva']   ?? 'individual';
-        $cantidad_mesas = (int)($cliente['cantidad_mesas'] ?? 1);
-        $sillas_por_mesa = (int)($cliente['sillas_por_mesa'] ?? 4);
-        $max_mesas_online = (int)($cantidad_mesas * (($cliente['porcentaje_online'] ?? 100) / 100));
+            $cliente = $this->clienteModel->find($cliente_id);
+            if (!$cliente) {
+                echo json_encode(['error' => 'Negocio no encontrado']);
+                exit;
+            }
 
-        // Empleados asignados al servicio
-        $empleadosAsignados = [];
-        if ($servicio_id > 0) {
-            $empleadosAsignados = $this->servicioModel->getEmpleadosPorServicio($servicio_id, $cliente_id);
-        }
-        $empleadoIds = array_column($empleadosAsignados, 'id');
+            $tipo_reserva   = $cliente['tipo_reserva']   ?? 'individual';
+            $cantidad_mesas = (int)($cliente['cantidad_mesas'] ?? 1);
+            $sillas_por_mesa = (int)($cliente['sillas_por_mesa'] ?? 4);
+            $max_mesas_online = (int)($cantidad_mesas * (($cliente['porcentaje_online'] ?? 100) / 100));
 
-        // --- OPTIMIZACIÓN: Pre-cargar todas las citas y bloqueos del día ---
-        $citasDia = $this->db->prepare("
-            SELECT c.hora, c.empleado_id, c.mesas_ocupadas, COALESCE(s.duracion, 30) as duracion
-            FROM citas c
-            LEFT JOIN servicios s ON s.id = c.servicio_id
-            WHERE c.cliente_id = ? AND c.fecha = ? AND c.estado NOT IN ('cancelada', 'no_llego', 'finalizada')
-        ");
-        $citasDia->execute([$cliente_id, $fecha]);
-        $allCitas = $citasDia->fetchAll();
+            // Empleados asignados al servicio
+            $empleadosAsignados = [];
+            if ($servicio_id > 0) {
+                $empleadosAsignados = $this->servicioModel->getEmpleadosPorServicio($servicio_id, $cliente_id);
+            }
+            $empleadoIds = array_column($empleadosAsignados, 'id');
 
-        $bloqueosDia = $this->db->prepare("
-            SELECT hora, empleado_id FROM bloqueos_citas
-            WHERE cliente_id = ? AND fecha = ? AND expira_en > NOW()
-        ");
-        $bloqueosDia->execute([$cliente_id, $fecha]);
-        $allBloqueos = $bloqueosDia->fetchAll();
+            // --- OPTIMIZACIÓN: Pre-cargar todas las citas y bloqueos del día ---
+            $citasDia = $this->db->prepare("
+                SELECT c.hora, c.empleado_id, c.mesas_ocupadas, COALESCE(s.duracion, 30) as duracion
+                FROM citas c
+                LEFT JOIN servicios s ON s.id = c.servicio_id
+                WHERE c.cliente_id = ? AND c.fecha = ? AND c.estado NOT IN ('cancelada', 'no_llego', 'finalizada')
+            ");
+            $citasDia->execute([$cliente_id, $fecha]);
+            $allCitas = $citasDia->fetchAll(PDO::FETCH_ASSOC);
 
-        $disponibles = [];
-        $horaFiltroHoy = ($fecha === date('Y-m-d')) ? date('H:i') : null;
+            $bloqueosDia = $this->db->prepare("
+                SELECT hora, empleado_id FROM bloqueos_citas
+                WHERE cliente_id = ? AND fecha = ? AND expira_en > NOW()
+            ");
+            $bloqueosDia->execute([$cliente_id, $fecha]);
+            $allBloqueos = $bloqueosDia->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($tipo_reserva === 'capacidad') {
-            // Lógica de Restaurante (Capacidad)
-            $horariosGral = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
-            if (empty($horariosGral)) { echo json_encode([]); exit; }
+            $disponibles = [];
+            $horaFiltroHoy = ($fecha === date('Y-m-d')) ? date('H:i') : null;
 
-            $personas = isset($_GET['personas']) ? (int)$_GET['personas'] : 1;
-            $mesas_requeridas = (int)ceil($personas / ($sillas_por_mesa ?: 1));
+            if ($tipo_reserva === 'capacidad') {
+                // Lógica de Restaurante (Capacidad)
+                $horariosGral = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
+                if (empty($horariosGral)) { echo json_encode([]); exit; }
 
-            foreach ($horariosGral as $h) {
-                $inicio = strtotime($h['hora_inicio']);
-                $fin    = strtotime($h['hora_fin']);
-                for ($t = $inicio; $t < $fin; $t += 1800) {
+                $personas = isset($_GET['personas']) ? (int)$_GET['personas'] : 1;
+                $mesas_requeridas = (int)ceil($personas / ($sillas_por_mesa ?: 1));
+
+                foreach ($horariosGral as $h) {
+                    $inicio = strtotime($h['hora_inicio']);
+                    $fin    = strtotime($h['hora_fin']);
+                    for ($t = $inicio; $t < $fin; $t += 1800) {
+                        $hora = date('H:i', $t);
+                        if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
+                        
+                        // Calcular ocupación en memoria
+                        $ocupadas = 0;
+                        foreach ($allCitas as $c) {
+                            $c_inicio = strtotime($c['hora']);
+                            $c_fin = $c_inicio + ($c['duracion'] * 60);
+                            if ($t >= $c_inicio && $t < $c_fin) {
+                                $ocupadas += (int)$c['mesas_ocupadas'];
+                            }
+                        }
+                        
+                        if (($ocupadas + $mesas_requeridas) <= $max_mesas_online) {
+                            $disponibles[] = $hora;
+                        }
+                    }
+                }
+            } else {
+                // Modo Individual (Por especialista o general)
+                $horariosPorEmpleado = [];
+                $usarGeneral = empty($empleadoIds);
+                
+                if (!$usarGeneral) {
+                    foreach ($empleadoIds as $empId) {
+                        $horariosPorEmpleado[$empId] = $this->horarioModel->getByDia($cliente_id, $diaSemana, (int)$empId);
+                    }
+                } else {
+                    $horariosPorEmpleado[0] = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
+                }
+
+                for ($t = strtotime('00:00'); $t <= strtotime('23:30'); $t += 1800) {
                     $hora = date('H:i', $t);
                     if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
                     
-                    // Calcular ocupación en memoria
-                    $ocupadas = 0;
-                    foreach ($allCitas as $c) {
-                        $c_inicio = strtotime($c['hora']);
-                        $c_fin = $c_inicio + ($c['duracion'] * 60);
-                        if ($t >= $c_inicio && $t < $c_fin) {
-                            $ocupadas += (int)$c['mesas_ocupadas'];
-                        }
-                    }
-                    
-                    if (($ocupadas + $mesas_requeridas) <= $max_mesas_online) {
-                        $disponibles[] = $hora;
-                    }
-                }
-            }
-        } else {
-            // Modo Individual (Por especialista o general)
-            
-            // 1. Obtener todos los horarios relevantes (general y de empleados asignados)
-            $horariosPorEmpleado = [];
-            $usarGeneral = empty($empleadoIds);
-            
-            if (!$usarGeneral) {
-                foreach ($empleadoIds as $empId) {
-                    $horariosPorEmpleado[$empId] = $this->horarioModel->getByDia($cliente_id, $diaSemana, (int)$empId);
-                }
-            } else {
-                $horariosPorEmpleado[0] = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
-            }
-
-            // 2. Evaluar slots (30 min)
-            for ($t = strtotime('00:00'); $t <= strtotime('23:30'); $t += 1800) {
-                $hora = date('H:i', $t);
-                if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
-                
-                $disponibleEnSlot = false;
-                foreach ($horariosPorEmpleado as $empId => $franjas) {
-                    foreach ($franjas as $f) {
-                        $h_inicio = strtotime($f['hora_inicio']);
-                        $h_fin = strtotime($f['hora_fin']);
-                        
-                        if ($t >= $h_inicio && $t < $h_fin) {
-                            // Está dentro de horario, verificar ocupación
-                            $ocupado = false;
+                    $disponibleEnSlot = false;
+                    foreach ($horariosPorEmpleado as $empId => $franjas) {
+                        foreach ($franjas as $f) {
+                            $h_inicio = strtotime($f['hora_inicio']);
+                            $h_fin = strtotime($f['hora_fin']);
                             
-                            // Check Citas en memoria
-                            foreach ($allCitas as $c) {
-                                if ($usarGeneral || (int)$c['empleado_id'] === (int)$empId) {
-                                    $c_inicio = strtotime($c['hora']);
-                                    $c_fin = $c_inicio + ($c['duracion'] * 60);
-                                    if ($t >= $c_inicio && $t < $c_fin) {
-                                        $ocupado = true; break;
+                            if ($t >= $h_inicio && $t < $h_fin) {
+                                $ocupado = false;
+                                foreach ($allCitas as $c) {
+                                    if ($usarGeneral || (int)$c['empleado_id'] === (int)$empId) {
+                                        $c_inicio = strtotime($c['hora']);
+                                        $c_fin = $c_inicio + ($c['duracion'] * 60);
+                                        if ($t >= $c_inicio && $t < $c_fin) {
+                                            $ocupado = true; break;
+                                        }
                                     }
                                 }
-                            }
-                            if ($ocupado) continue;
+                                if ($ocupado) continue;
 
-                            // Check Bloqueos en memoria
-                            foreach ($allBloqueos as $b) {
-                                if ($usarGeneral || (int)$b['empleado_id'] === (int)$empId) {
-                                    if (date('H:i', strtotime($b['hora'])) === $hora) {
-                                        $ocupado = true; break;
+                                foreach ($allBloqueos as $b) {
+                                    if ($usarGeneral || (int)$b['empleado_id'] === (int)$empId) {
+                                        if (date('H:i', strtotime($b['hora'])) === $hora) {
+                                            $ocupado = true; break;
+                                        }
                                     }
                                 }
-                            }
-                            
-                            if (!$ocupado) {
-                                $disponibleEnSlot = true;
-                                break 2;
+                                
+                                if (!$ocupado) {
+                                    $disponibleEnSlot = true;
+                                    break 2;
+                                }
                             }
                         }
                     }
+                    if ($disponibleEnSlot) $disponibles[] = $hora;
                 }
-                if ($disponibleEnSlot) $disponibles[] = $hora;
             }
+
+            // Eliminar duplicados y ordenar
+            $disponibles = array_values(array_unique($disponibles));
+            sort($disponibles);
+
+            echo json_encode($disponibles);
+            exit;
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error'   => true,
+                'message' => $e->getMessage(),
+                'file'    => basename($e->getFile()),
+                'line'    => $e->getLine()
+            ]);
+            exit;
         }
-
-
-        // Eliminar duplicados y ordenar
-        $disponibles = array_values(array_unique($disponibles));
-        sort($disponibles);
-
-        echo json_encode($disponibles);
+    }
         exit;
     }
 
