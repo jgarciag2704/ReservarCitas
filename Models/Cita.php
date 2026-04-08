@@ -116,7 +116,7 @@ class Cita extends BaseModel {
              FROM citas c
              LEFT JOIN servicios s ON c.servicio_id = s.id
              WHERE c.cliente_id = ? AND c.fecha = ?
-               AND c.estado NOT IN ('cancelada')"
+               AND c.estado NOT IN ('cancelada', 'finalizada', 'no_llego')"
         );
         $stmt->execute([$cliente_id, $fecha]);
         $citas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -143,7 +143,7 @@ class Cita extends BaseModel {
              FROM citas c
              LEFT JOIN servicios s ON c.servicio_id = s.id
              WHERE c.cliente_id = ? AND c.fecha = ?
-               AND c.estado NOT IN ('cancelada')
+               AND c.estado NOT IN ('cancelada', 'finalizada', 'no_llego')
                AND c.empleado_id IS NOT NULL
                AND TIME(STR_TO_DATE(?, '%H:%i')) >= c.hora
                AND TIME(STR_TO_DATE(?, '%H:%i')) < ADDTIME(c.hora, SEC_TO_TIME(COALESCE(s.duracion, 30) * 60))"
