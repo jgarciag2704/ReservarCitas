@@ -497,6 +497,10 @@ class AdminController {
         $slug   = trim($_POST['slug']   ?? '');
         $color  = trim($_POST['color']  ?? '#6366F1');
         
+        $especialidad = trim($_POST['especialidad'] ?? '');
+        $experiencia  = trim($_POST['experiencia'] ?? '');
+        $google_maps  = trim($_POST['google_maps'] ?? '');
+        
         $tipo_reserva      = $_POST['tipo_reserva'] ?? 'individual';
         $cantidad_mesas    = (int)($_POST['cantidad_mesas'] ?? 1);
         $sillas_por_mesa   = (int)($_POST['sillas_por_mesa'] ?? 4);
@@ -537,10 +541,11 @@ class AdminController {
         // Actualizar en DB
         $stmt = $this->db->prepare("
             UPDATE clientes 
-            SET nombre = ?, slug = ?, color = ?, logo = ?, tipo_reserva = ?, cantidad_mesas = ?, sillas_por_mesa = ?, porcentaje_online = ?, tiempo_gracia = ?
+            SET nombre = ?, slug = ?, color = ?, logo = ?, tipo_reserva = ?, cantidad_mesas = ?, sillas_por_mesa = ?, porcentaje_online = ?, tiempo_gracia = ?,
+                especialidad = ?, experiencia = ?, google_maps = ?
             WHERE id = ?
         ");
-        $stmt->execute([$nombre, $slug, $color, $logoPath, $tipo_reserva, $cantidad_mesas, $sillas_por_mesa, $porcentaje_online, $tiempo_gracia, $this->clienteId]);
+        $stmt->execute([$nombre, $slug, $color, $logoPath, $tipo_reserva, $cantidad_mesas, $sillas_por_mesa, $porcentaje_online, $tiempo_gracia, $especialidad, $experiencia, $google_maps, $this->clienteId]);
 
         $_SESSION['success'] = 'Configuración guardada correctamente.';
         header('Location: index.php?controller=admin&action=ajustes');

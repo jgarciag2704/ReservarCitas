@@ -106,21 +106,78 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
     
     <div class="glass-bg"></div>
 
-    <!-- ── HÉADER DEL NEGOCIO ─────────────────────────────────────────────── -->
-    <header class="text-white pt-16 pb-12 px-4 text-center">
-        <?php if (!empty($cliente['logo'])): ?>
-            <div class="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-white p-1.5 shadow-2xl border border-white/30 backdrop-blur-sm mb-6 transition-transform hover:scale-105 duration-500">
-                <img src="/<?= htmlspecialchars($cliente['logo']) ?>" 
-                     alt="<?= htmlspecialchars($cliente['nombre']) ?>" 
-                     class="w-full h-full object-cover rounded-[1.7rem]">
+    <!-- ── HÉADER DEL NEGOCIO (PREMIUM) ─────────────────────────────────── -->
+    <header class="pt-12 pb-10 px-4">
+        <div class="max-w-2xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-[2.5rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 relative overflow-hidden">
+            
+            <!-- Brillo estético de fondo (animado/radial) -->
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
+            
+            <!-- Logo container -->
+            <div class="relative z-10 flex-shrink-0 group">
+                <?php if (!empty($cliente['logo'])): ?>
+                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1.5 bg-gradient-to-tr from-white/60 to-white shadow-xl transition-transform duration-500 group-hover:scale-105">
+                        <img src="/<?= htmlspecialchars($cliente['logo']) ?>" 
+                             alt="<?= htmlspecialchars($cliente['nombre']) ?>" 
+                             class="w-full h-full object-cover rounded-full border-4 border-white cursor-pointer">
+                    </div>
+                <?php else: ?>
+                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1.5 bg-gradient-to-tr from-white/40 to-white shadow-xl transition-transform duration-500 group-hover:scale-105">
+                        <div class="w-full h-full rounded-full bg-white flex items-center justify-center text-5xl font-black text-slate-800 shadow-inner cursor-pointer">
+                            <?= strtoupper(substr($cliente['nombre'], 0, 1)) ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Badgesito Overlap (Check verificado) -->
+                <div class="absolute bottom-1 right-1 bg-emerald-400 border-[3px] border-white text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg" title="Perfil Verificado y Seguro">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                </div>
             </div>
-        <?php else: ?>
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md mb-6 shadow-lg border border-white/20">
-                <span class="text-3xl font-bold"><?= strtoupper(substr($cliente['nombre'], 0, 1)) ?></span>
+
+            <!-- Información -->
+            <div class="relative z-10 flex-1 pt-1 sm:pt-2">
+                <div class="inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 transition-colors px-3 py-1 rounded-full border border-white/20 mb-3 shadow-sm cursor-default">
+                    <svg class="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span class="text-[10px] font-extrabold text-white uppercase tracking-widest drop-shadow-md">Reserva Protegida</span>
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2 drop-shadow-lg leading-tight">
+                    <?= htmlspecialchars($cliente['nombre']) ?>
+                </h1>
+                
+                <?php if (!empty($cliente['especialidad'])): ?>
+                    <p class="text-white/95 text-sm sm:text-base font-semibold mb-5 max-w-sm drop-shadow-md pb-4 border-b border-white/20 sm:mx-0 mx-auto">
+                        <?= htmlspecialchars($cliente['especialidad']) ?>
+                    </p>
+                <?php else: ?>
+                    <p class="text-white/95 text-sm sm:text-base font-semibold mb-5 max-w-sm drop-shadow-md pb-4 border-b border-white/20 sm:mx-0 mx-auto">
+                        Agenda tu espacio en segundos y sin complicaciones.
+                    </p>
+                <?php endif; ?>
+
+                <div class="flex flex-wrap justify-center sm:justify-start gap-2.5">
+                    <?php if (!empty($cliente['experiencia'])): ?>
+                        <div class="flex items-center gap-2 bg-black/10 hover:bg-black/20 backdrop-blur-md transition-all border border-white/10 px-3.5 py-1.5 rounded-xl shadow-sm hover:shadow-md cursor-default">
+                            <span class="flex items-center justify-center w-6 h-6 bg-white/20 rounded-lg text-white shadow-inner">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </span>
+                            <span class="text-xs font-extrabold text-white tracking-wide"><?= htmlspecialchars($cliente['experiencia']) ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($cliente['google_maps'])): ?>
+                        <a href="<?= htmlspecialchars($cliente['google_maps']) ?>" target="_blank" class="flex items-center gap-2 bg-black/10 hover:bg-black/20 backdrop-blur-md transition-all border border-white/10 px-3.5 py-1.5 rounded-xl shadow-sm hover:-translate-y-0.5 hover:shadow-md group/map">
+                            <span class="flex items-center justify-center w-6 h-6 bg-white rounded-lg text-red-500 shadow-sm group-hover/map:scale-110 transition-transform">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </span>
+                            <span class="text-xs font-extrabold text-white tracking-wide">Ubicación</span>
+                        </a>
+                    <?php endif; ?>
+                </div>
+
             </div>
-        <?php endif; ?>
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 drop-shadow-md"><?= htmlspecialchars($cliente['nombre']) ?></h1>
-        <p class="text-white/90 text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed">Agenda tu espacio en segundos y sin complicaciones.</p>
+        </div>
     </header>
 
     <main class="max-w-2xl mx-auto px-4 pb-20 -mt-2">
@@ -526,7 +583,7 @@ function mostrarAutoAsignado(emp) {
 
 function mostrarPickerEmpleados(empleados) {
     const horasContainer = document.getElementById('horasContainer');
-    const picker = document.createElement('div');
+    const picker = document.getElementById('empleadoPicker') || document.createElement('div');
     picker.id = 'empleadoPicker';
     picker.className = 'mt-6 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300';
     
@@ -542,31 +599,42 @@ function mostrarPickerEmpleados(empleados) {
             </div>
             <div>
                 <p class="font-bold text-slate-900 leading-tight">Cualquiera</p>
-                <p class="text-xs text-slate-500 font-medium">Asignar al profesional más libre</p>
+                <p class="text-[10px] text-slate-500 font-medium">Asignar al profesional más libre</p>
             </div>
             <div class="ml-auto w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot"></div>
         </div>
     `;
 
     empleados.forEach(emp => {
+        const especialidad = emp.especialidad ? `<p class="text-[10px] text-brand font-bold uppercase tracking-tight">${emp.especialidad}</p>` : '';
+        const experiencia  = emp.experiencia  ? `<p class="text-[10px] text-slate-400 font-medium">${emp.experiencia} de experiencia</p>` : '';
+        const mapsLink    = emp.google_maps  ? `
+            <a href="${emp.google_maps}" target="_blank" onclick="event.stopPropagation()" class="ml-auto p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-brand transition-colors" title="Ver ubicación">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </a>` : '';
+
         html += `
             <div onclick="elegirEmpleado(this, ${emp.id}, '${emp.nombre.replace(/'/g, "\\'")}')" 
                  class="emp-card flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 bg-white shadow-sm ring-brand/10 hover:ring-8">
                 <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black text-lg flex-shrink-0" style="background-color: var(--color)">
                     ${emp.nombre.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                    <p class="font-bold text-slate-900 leading-tight">${emp.nombre}</p>
-                    <p class="text-xs text-emerald-600 font-bold tracking-wide">Disponible</p>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-slate-900 leading-tight truncate">${emp.nombre}</p>
+                    ${especialidad}
+                    ${experiencia}
                 </div>
-                <div class="ml-auto w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot"></div>
+                ${mapsLink}
+                <div class="w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-dot"></div>
             </div>
         `;
     });
 
     html += `</div>`;
     picker.innerHTML = html;
-    horasContainer.after(picker);
+    if (!document.getElementById('empleadoPicker')) {
+        horasContainer.after(picker);
+    }
 }
 
 function elegirEmpleado(card, id, nombre) {

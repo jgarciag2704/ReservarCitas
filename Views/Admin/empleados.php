@@ -119,13 +119,24 @@ unset($_SESSION['success'], $_SESSION['error']);
                                         </div>
                                         <div>
                                             <p class="font-semibold text-gray-800"><?= htmlspecialchars($emp['nombre']) ?></p>
-                                            <p class="text-xs text-gray-400"><?= htmlspecialchars($emp['email']) ?></p>
+                                            <?php if (!empty($emp['especialidad'])): ?>
+                                                <p class="text-xs text-indigo-600 font-bold"><?= htmlspecialchars($emp['especialidad']) ?></p>
+                                            <?php endif; ?>
+                                            <p class="text-[10px] text-gray-400"><?= htmlspecialchars($emp['email']) ?></p>
                                         </div>
                                     </div>
                                 </td>
                                 <!-- Teléfono -->
                                 <td class="px-6 py-4 text-gray-600">
-                                    <?= $emp['telefono'] ? htmlspecialchars($emp['telefono']) : '<span class="text-gray-300 italic">Sin teléfono</span>' ?>
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-sm"><?= $emp['telefono'] ? htmlspecialchars($emp['telefono']) : '<span class="text-gray-300 italic">Sin teléfono</span>' ?></span>
+                                        <?php if (!empty($emp['google_maps'])): ?>
+                                            <a href="<?= htmlspecialchars($emp['google_maps']) ?>" target="_blank" class="text-[10px] text-blue-500 hover:underline flex items-center gap-1">
+                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                Ver ubicación
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <!-- Servicios asignados -->
                                 <td class="px-6 py-4">
@@ -240,6 +251,23 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <input type="tel" name="telefono" id="crear_telefono" placeholder="Ej. 555-1234"
                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
             </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Especialidad</label>
+                    <input type="text" name="especialidad" id="crear_especialidad" placeholder="Ej. Cardiología"
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Experiencia</label>
+                    <input type="text" name="experiencia" id="crear_experiencia" placeholder="Ej. 10 años"
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Link de ubicación (Google Maps)</label>
+                <input type="url" name="google_maps" id="crear_google_maps" placeholder="https://goo.gl/maps/..."
+                       class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+            </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Contraseña <span class="text-red-500">*</span></label>
                 <input type="password" name="password" id="crear_password" required minlength="6" placeholder="Mínimo 6 caracteres"
@@ -288,6 +316,23 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <input type="tel" name="telefono" id="edit_telefono"
                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
             </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Especialidad</label>
+                    <input type="text" name="especialidad" id="edit_especialidad" placeholder="Ej. Cardiología"
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Experiencia</label>
+                    <input type="text" name="experiencia" id="edit_experiencia" placeholder="Ej. 10 años"
+                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Link de ubicación (Google Maps)</label>
+                <input type="url" name="google_maps" id="edit_google_maps" placeholder="https://goo.gl/maps/..."
+                       class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-soft focus:border-brand outline-none transition-all">
+            </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nueva contraseña <span class="text-gray-400 font-normal">(dejar vacío para no cambiar)</span></label>
                 <input type="password" name="password" id="edit_password" minlength="6" placeholder="••••••"
@@ -319,11 +364,14 @@ function closeModalCrear() {
 
 // ── Modal Editar ─────────────────────────────────────────────────────────
 function openModalEditar(data) {
-    document.getElementById('edit_id').value       = data.id;
-    document.getElementById('edit_nombre').value   = data.nombre;
-    document.getElementById('edit_email').value    = data.email;
-    document.getElementById('edit_telefono').value = data.telefono ?? '';
-    document.getElementById('edit_password').value = '';
+    document.getElementById('edit_id').value           = data.id;
+    document.getElementById('edit_nombre').value       = data.nombre;
+    document.getElementById('edit_email').value        = data.email;
+    document.getElementById('edit_telefono').value     = data.telefono     ?? '';
+    document.getElementById('edit_especialidad').value = data.especialidad ?? '';
+    document.getElementById('edit_experiencia').value  = data.experiencia  ?? '';
+    document.getElementById('edit_google_maps').value  = data.google_maps  ?? '';
+    document.getElementById('edit_password').value     = '';
     document.getElementById('modalEditar').classList.remove('hidden');
 }
 function closeModalEditar() {

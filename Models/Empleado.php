@@ -21,7 +21,7 @@ class Empleado extends BaseModel {
      */
     public function getByCliente(int $clienteId): array {
         $stmt = $this->db->prepare("
-            SELECT id, nombre, email, telefono, rol, activo
+            SELECT id, nombre, email, telefono, especialidad, experiencia, google_maps, rol, activo
             FROM usuarios
             WHERE cliente_id = :cid
               AND rol = 'empleado'
@@ -36,7 +36,7 @@ class Empleado extends BaseModel {
      */
     public function find(int $id, int $clienteId): array|false {
         $stmt = $this->db->prepare("
-            SELECT id, nombre, email, telefono, rol, activo
+            SELECT id, nombre, email, telefono, especialidad, experiencia, google_maps, rol, activo
             FROM usuarios
             WHERE id = :id AND cliente_id = :cid AND rol = 'empleado'
         ");
@@ -60,16 +60,19 @@ class Empleado extends BaseModel {
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
 
         $stmt = $this->db->prepare("
-            INSERT INTO usuarios (cliente_id, nombre, email, telefono, password, rol, activo)
-            VALUES (:cliente_id, :nombre, :email, :telefono, :password, 'empleado', 1)
+            INSERT INTO usuarios (cliente_id, nombre, email, telefono, especialidad, experiencia, google_maps, password, rol, activo)
+            VALUES (:cliente_id, :nombre, :email, :telefono, :especialidad, :experiencia, :google_maps, :password, 'empleado', 1)
         ");
 
         return $stmt->execute([
-            ':cliente_id' => $data['cliente_id'],
-            ':nombre'     => $data['nombre'],
-            ':email'      => $data['email'],
-            ':telefono'   => $data['telefono'] ?? null,
-            ':password'   => $hash,
+            ':cliente_id'  => $data['cliente_id'],
+            ':nombre'      => $data['nombre'],
+            ':email'       => $data['email'],
+            ':telefono'    => $data['telefono'] ?? null,
+            ':especialidad' => $data['especialidad'] ?? null,
+            ':experiencia'  => $data['experiencia'] ?? null,
+            ':google_maps'  => $data['google_maps'] ?? null,
+            ':password'    => $hash,
         ]);
     }
 
@@ -91,29 +94,38 @@ class Empleado extends BaseModel {
         if (!empty($data['password'])) {
             $stmt = $this->db->prepare("
                 UPDATE usuarios
-                SET nombre = :nombre, email = :email, telefono = :telefono, password = :password
+                SET nombre = :nombre, email = :email, telefono = :telefono, 
+                    especialidad = :especialidad, experiencia = :experiencia, google_maps = :google_maps,
+                    password = :password
                 WHERE id = :id AND cliente_id = :cid AND rol = 'empleado'
             ");
             return $stmt->execute([
-                ':nombre'    => $data['nombre'],
-                ':email'     => $data['email'],
-                ':telefono'  => $data['telefono'] ?? null,
-                ':password'  => password_hash($data['password'], PASSWORD_DEFAULT),
-                ':id'        => $id,
-                ':cid'       => $clienteId,
+                ':nombre'       => $data['nombre'],
+                ':email'        => $data['email'],
+                ':telefono'     => $data['telefono'] ?? null,
+                ':especialidad' => $data['especialidad'] ?? null,
+                ':experiencia'  => $data['experiencia'] ?? null,
+                ':google_maps'  => $data['google_maps'] ?? null,
+                ':password'     => password_hash($data['password'], PASSWORD_DEFAULT),
+                ':id'           => $id,
+                ':cid'          => $clienteId,
             ]);
         } else {
             $stmt = $this->db->prepare("
                 UPDATE usuarios
-                SET nombre = :nombre, email = :email, telefono = :telefono
+                SET nombre = :nombre, email = :email, telefono = :telefono,
+                    especialidad = :especialidad, experiencia = :experiencia, google_maps = :google_maps
                 WHERE id = :id AND cliente_id = :cid AND rol = 'empleado'
             ");
             return $stmt->execute([
-                ':nombre'   => $data['nombre'],
-                ':email'    => $data['email'],
-                ':telefono' => $data['telefono'] ?? null,
-                ':id'       => $id,
-                ':cid'      => $clienteId,
+                ':nombre'       => $data['nombre'],
+                ':email'        => $data['email'],
+                ':telefono'     => $data['telefono'] ?? null,
+                ':especialidad' => $data['especialidad'] ?? null,
+                ':experiencia'  => $data['experiencia'] ?? null,
+                ':google_maps'  => $data['google_maps'] ?? null,
+                ':id'           => $id,
+                ':cid'          => $clienteId,
             ]);
         }
     }

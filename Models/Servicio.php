@@ -42,9 +42,9 @@ class Servicio extends BaseModel {
      */
     public function getEmpleadosPorServicio(int $servicioId, int $clienteId): array {
         $stmt = $this->db->prepare("
-            SELECT u.id, u.nombre, u.email, u.activo
-            FROM servicio_empleados se
-            JOIN usuarios u  ON u.id  = se.empleado_id
+            SELECT u.id, u.nombre, u.email, u.activo, u.especialidad, u.experiencia, u.google_maps
+            FROM usuarios u
+            JOIN servicio_empleados se ON se.empleado_id = u.id
             JOIN servicios s ON s.id  = se.servicio_id
             WHERE se.servicio_id = :sid
               AND s.cliente_id   = :cid

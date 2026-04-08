@@ -106,10 +106,13 @@ class EmployeeController {
             exit;
         }
 
-        $nombre   = trim($_POST['nombre']   ?? '');
-        $email    = trim($_POST['email']    ?? '');
-        $telefono = trim($_POST['telefono'] ?? '');
-        $password = trim($_POST['password'] ?? '');
+        $nombre       = trim($_POST['nombre']       ?? '');
+        $email        = trim($_POST['email']        ?? '');
+        $telefono     = trim($_POST['telefono']     ?? '');
+        $especialidad = trim($_POST['especialidad'] ?? '');
+        $experiencia  = trim($_POST['experiencia']  ?? '');
+        $google_maps  = trim($_POST['google_maps']  ?? '');
+        $password     = trim($_POST['password']     ?? '');
 
         // Validaciones básicas
         if (!$nombre || !$email || !$password) {
@@ -131,11 +134,14 @@ class EmployeeController {
         }
 
         $ok = $this->empleadoModel->crear([
-            'cliente_id' => $this->clienteId,
-            'nombre'     => $nombre,
-            'email'      => $email,
-            'telefono'   => $telefono ?: null,
-            'password'   => $password,
+            'cliente_id'   => $this->clienteId,
+            'nombre'       => $nombre,
+            'email'        => $email,
+            'telefono'     => $telefono ?: null,
+            'especialidad' => $especialidad ?: null,
+            'experiencia'  => $experiencia ?: null,
+            'google_maps'  => $google_maps ?: null,
+            'password'     => $password,
         ]);
 
         if ($ok) {
@@ -157,11 +163,14 @@ class EmployeeController {
             exit;
         }
 
-        $id       = (int)($_POST['id']       ?? 0);
-        $nombre   = trim($_POST['nombre']    ?? '');
-        $email    = trim($_POST['email']     ?? '');
-        $telefono = trim($_POST['telefono']  ?? '');
-        $password = trim($_POST['password']  ?? '');
+        $id           = (int)($_POST['id']           ?? 0);
+        $nombre       = trim($_POST['nombre']       ?? '');
+        $email        = trim($_POST['email']        ?? '');
+        $telefono     = trim($_POST['telefono']     ?? '');
+        $especialidad = trim($_POST['especialidad'] ?? '');
+        $experiencia  = trim($_POST['experiencia']  ?? '');
+        $google_maps  = trim($_POST['google_maps']  ?? '');
+        $password     = trim($_POST['password']     ?? '');
 
         if (!$id || !$nombre || !$email) {
             $_SESSION['error'] = 'Nombre y email son obligatorios.';
@@ -182,10 +191,13 @@ class EmployeeController {
         }
 
         $ok = $this->empleadoModel->actualizar($id, $this->clienteId, [
-            'nombre'   => $nombre,
-            'email'    => $email,
-            'telefono' => $telefono ?: null,
-            'password' => $password,
+            'nombre'       => $nombre,
+            'email'        => $email,
+            'telefono'     => $telefono ?: null,
+            'especialidad' => $especialidad ?: null,
+            'experiencia'  => $experiencia ?: null,
+            'google_maps'  => $google_maps ?: null,
+            'password'     => $password,
         ]);
 
         if ($ok) {

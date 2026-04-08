@@ -90,6 +90,25 @@
                                        class="flex-1 text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-soft file:text-brand hover:file:bg-brand hover:file:text-white transition-all cursor-pointer">
                             </div>
                         </div>
+
+                        <!-- Especialidad / Subtítulo -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Especialidad / Descripción</label>
+                            <input type="text" name="especialidad" value="<?= htmlspecialchars($negocio['especialidad'] ?? '') ?>" placeholder="Ej. Cardiología, Clínica Médica..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                        </div>
+
+                        <!-- Experiencia -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Años de Experiencia</label>
+                            <input type="text" name="experiencia" value="<?= htmlspecialchars($negocio['experiencia'] ?? '') ?>" placeholder="Ej. 15 años" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                        </div>
+
+                        <!-- Google Maps -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">URL de Ubicación en Maps</label>
+                            <input type="url" name="google_maps" value="<?= htmlspecialchars($negocio['google_maps'] ?? '') ?>" placeholder="https://maps.app.goo.gl/..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                            <p class="text-xs text-slate-500 mt-1 font-medium">Pega aquí el enlace del lugar en Google Maps para que tus clientes puedan llegar fácilmente a tu consultorio o local.</p>
+                        </div>
                     </div>
                 </div>
 
