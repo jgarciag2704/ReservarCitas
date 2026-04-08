@@ -67,6 +67,60 @@ $linkPublico = "http://" . $_SERVER['HTTP_HOST'] . "/index.php?controller=client
             </div>
         <?php endif; ?>
 
+        <!-- Panel de Mesas en Vivo (Solo Capacidad/Restaurantes) -->
+        <?php if (!empty($esCapacidad) && $esCapacidad): ?>
+        <div class="mb-10 bg-gradient-to-br from-slate-900 to-indigo-900 rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-bl-[100px] -mr-16 -mt-16 z-0 pointer-events-none"></div>
+            
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                
+                <!-- Estado Actual en Vivo -->
+                <div class="md:col-span-1 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-6">
+                    <h3 class="text-indigo-200 font-bold mb-2 tracking-widest text-[10px] uppercase">🔴 Monitor en Tiempo Real</h3>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-7xl font-extrabold text-white tracking-tighter"><?= $mesasActualesLibres ?></span>
+                        <span class="text-2xl font-bold text-slate-400">/ <?= $mesasTotales ?></span>
+                    </div>
+                    <p class="mt-1 text-slate-300 font-medium text-sm">Mesas Disponibles Ahora</p>
+                </div>
+                
+                <!-- Disponibilidad por Hora (Timeline) -->
+                <div class="md:col-span-2">
+                    <h3 class="text-indigo-200 font-bold mb-4 tracking-widest text-[10px] uppercase text-center md:text-left">Disponibilidad del Día (Por Hora)</h3>
+                    
+                    <?php if (empty($mesasOcupadasHoy)): ?>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                            <p class="text-slate-400 text-sm">El local se encuentra fuera de horario de servicio según la configuración actual.</p>
+                        </div>
+                    <?php else: ?>
+                        <!-- Usamos scroll snap para navegación táctil fácil en móviles -->
+                        <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+                            <?php foreach ($mesasOcupadasHoy as $h): 
+                                // Color semaforizado
+                                $colorCls = 'text-emerald-400';
+                                if ($h['libres'] === 0) {
+                                    $colorCls = 'text-rose-400';
+                                } elseif ($h['libres'] <= ceil($mesasTotales * 0.2)) {
+                                    // Menos del 20%
+                                    $colorCls = 'text-amber-400';
+                                }
+                            ?>
+                                <div class="flex-shrink-0 snap-start bg-white/10 backdrop-blur-md rounded-2xl p-4 w-28 text-center border border-white/10 hover:bg-white/20 transition-colors shadow-inner">
+                                    <p class="text-sm font-bold text-slate-100 mb-2"><?= $h['hora'] ?></p>
+                                    <div class="text-3xl font-black mb-1 <?= $colorCls ?>"><?= $h['libres'] ?></div>
+                                    <p class="text-[10px] text-slate-300 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
+                                        🪑 Libres
+                                    </p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Tarjetas de estadísticas Glassmorphic -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 

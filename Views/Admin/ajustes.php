@@ -90,6 +90,41 @@
                     </div>
                 </div>
 
+                <!-- Capacidad y Aforo -->
+                <div class="glass-panel p-8 rounded-3xl shadow-sm border border-slate-200/60 transition-all hover:shadow-md">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <span class="text-brand">🏢</span> Configuración de Reservas y Aforo
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Modo de Reserva</label>
+                            <select id="tipo_reserva" name="tipo_reserva" onchange="toggleCapacidadFields()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                                <option value="individual" <?= ($negocio['tipo_reserva'] ?? 'individual') === 'individual' ? 'selected' : '' ?>>Especialistas individuales (Agendas)</option>
+                                <option value="capacidad" <?= ($negocio['tipo_reserva'] ?? 'individual') === 'capacidad' ? 'selected' : '' ?>>Restaurante / Aforo (Mesas)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="capacidad_fields" class="contents">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Mesas Totales del Local</label>
+                                <input type="number" min="1" name="cantidad_mesas" value="<?= htmlspecialchars($negocio['cantidad_mesas'] ?? 1) ?>" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Sillas p/Mesa Estandar</label>
+                                <input type="number" min="1" name="sillas_por_mesa" value="<?= htmlspecialchars($negocio['sillas_por_mesa'] ?? 4) ?>" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">% Máximo para Online</label>
+                                <input type="number" min="1" max="100" name="porcentaje_online" value="<?= htmlspecialchars($negocio['porcentaje_online'] ?? 100) ?>" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Tiempo de Gracia (No-show min)</label>
+                                <input type="number" min="0" name="tiempo_gracia" value="<?= htmlspecialchars($negocio['tiempo_gracia'] ?? 15) ?>" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-brand-soft focus:border-brand transition-all outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Preview Card (Visual) -->
                 <div class="bg-brand p-8 rounded-3xl shadow-xl shadow-brand-soft text-white relative overflow-hidden group">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
@@ -103,6 +138,21 @@
         </div>
     </main>
 </div>
+
+<script>
+    function toggleCapacidadFields() {
+        const modo = document.getElementById('tipo_reserva').value;
+        const panel = document.getElementById('capacidad_fields');
+        if (modo === 'capacidad') {
+            panel.style.display = ''; // Usamos grid, si está visible usa su display natural
+            panel.classList.remove('hidden');
+        } else {
+            panel.style.display = 'none';
+            panel.classList.add('hidden');
+        }
+    }
+    document.addEventListener('DOMContentLoaded', toggleCapacidadFields);
+</script>
 
 </body>
 </html>

@@ -2,16 +2,19 @@
 require_once BASE_PATH . 'Models/Cita.php';
 require_once BASE_PATH . 'Models/Horario.php';
 require_once BASE_PATH . 'Models/Servicio.php';
+require_once BASE_PATH . 'Models/Cliente.php';
 
 class CitaService {
     private $db;
     private $citaModel;
     private $horarioModel;
+    private $clienteModel;
 
     public function __construct($db) {
         $this->db = $db;
         $this->citaModel   = new Cita($db);
         $this->horarioModel = new Horario($db);
+        $this->clienteModel = new Cliente($db);
     }
 
     /**
@@ -37,59 +40,83 @@ class CitaService {
         $empleadoId = !empty($data['empleado_id']) ? (int)$data['empleado_id'] : null;
         $fecha      = trim($data['fecha']);
         $hora       = trim($data['hora']);
+        $personas   = isset($data['personas']) ? (int)$data['personas'] : 1;
+
+        $cliente = $this->clienteModel->find($cliente_id);
+        $tipo_reserva = $cliente['tipo_reserva'] ?? 'individual';
+        $cantidad_mesas = (int)($cliente['cantidad_mesas'] ?? 1);
+        $sillas_por_mesa = (int)($cliente['sillas_por_mesa'] ?? 4);
+        $mesas_requeridas = (int)ceil($personas / ($sillas_por_mesa ?: 1));
 
         try {
             $this->db->beginTransaction();
 
-            // 1. Validar pertenencia del empleado
-            if ($empleadoId !== null && !$this->empleadoPerteneceACliente($empleadoId, $cliente_id)) {
-                $this->db->rollBack();
-                return ['status' => false, 'message' => '⚠️ Empleado no válido para este negocio.'];
-            }
-
-            // 2. Limpiar bloqueos expirados para tener visión real
             $this->limpiarBloqueosExpirados();
 
-            // 3. Si no se eligió empleado (Cualquiera), buscar el disponible con menos carga
-            if ($empleadoId === null && !empty($data['servicio_id'])) {
-                $servicioModel = new Servicio($this->db);
-                $empleadosAsignados = $servicioModel->getEmpleadosPorServicio((int)$data['servicio_id'], $cliente_id);
+            if ($tipo_reserva === 'capacidad') {
+                // Validación para capacidad (Restaurante/Mesas)
+                $porcentaje = isset($data['es_admin_walkin']) ? 100 : ($cliente['porcentaje_online'] / 100);
+                $max_mesas_online = (int)($cantidad_mesas * $porcentaje);
                 
-                if (!empty($empleadosAsignados)) {
-                    $disponibles = [];
-                    foreach ($empleadosAsignados as $emp) {
-                        if ($this->estaLibre($cliente_id, $fecha, $hora, (int)$emp['id'], true)) {
-                            $disponibles[] = (int)$emp['id'];
+                $mesas_ocupadas_actuales = $this->citaModel->getMesasOcupadasEnHora($cliente_id, $fecha, $hora);
+                
+                if (($mesas_ocupadas_actuales + $mesas_requeridas) > $max_mesas_online) {
+                    $this->db->rollBack();
+                    return ['status' => false, 'message' => '⚠️ Lo sentimos, no hay suficientes lugares o mesas disponibles para esta hora.'];
+                }
+
+                // Asignar null si el empleado no es obligatorio
+                $empleadoId = null;
+
+            } else {
+                // Lógica de validación individual
+                if ($empleadoId !== null && !$this->empleadoPerteneceACliente($empleadoId, $cliente_id)) {
+                    $this->db->rollBack();
+                    return ['status' => false, 'message' => '⚠️ Empleado no válido para este negocio.'];
+                }
+
+                if ($empleadoId === null && !empty($data['servicio_id'])) {
+                    $servicioModel = new Servicio($this->db);
+                    $empleadosAsignados = $servicioModel->getEmpleadosPorServicio((int)$data['servicio_id'], $cliente_id);
+                    
+                    if (!empty($empleadosAsignados)) {
+                        $disponibles = [];
+                        foreach ($empleadosAsignados as $emp) {
+                            if ($this->estaLibre($cliente_id, $fecha, $hora, (int)$emp['id'], true)) {
+                                $disponibles[] = (int)$emp['id'];
+                            }
                         }
-                    }
 
-                    if (empty($disponibles)) {
-                        $this->db->rollBack();
-                        return ['status' => false, 'message' => '⚠️ No hay especialistas disponibles para este horario.'];
-                    }
+                        if (empty($disponibles)) {
+                            $this->db->rollBack();
+                            return ['status' => false, 'message' => '⚠️ No hay especialistas disponibles para este horario.'];
+                        }
 
-                    // Balance de carga: contar citas del día para los disponibles
-                    $conteos = $this->citaModel->getConteoCitasDiaPorEmpleado($cliente_id, $fecha, $disponibles);
-                    asort($conteos); // Ordenar de menos a más citas
-                    $empleadoId = key($conteos); // El ID del primero (menos cargado)
+                        $conteos = $this->citaModel->getConteoCitasDiaPorEmpleado($cliente_id, $fecha, $disponibles);
+                        asort($conteos); 
+                        $empleadoId = key($conteos); 
+                    }
+                }
+
+                if (!$this->estaLibre($cliente_id, $fecha, $hora, $empleadoId, true)) {
+                    $this->db->rollBack();
+                    return ['status' => false, 'message' => '⚠️ El horario ya no está disponible. Por favor, elige otro.'];
                 }
             }
 
-            // 4. Verificación Atómica de Disponibilidad Final
-            if (!$this->estaLibre($cliente_id, $fecha, $hora, $empleadoId, true)) {
-                $this->db->rollBack();
-                return ['status' => false, 'message' => '⚠️ El horario ya no está disponible. Por favor, elige otro.'];
-            }
-
-            // 4. Crear la Cita
+            // Crear la Cita
+            $estadoInicial = isset($data['es_admin_walkin']) ? 'en_curso' : 'pendiente';
             $ok = $this->citaModel->crear([
-                'cliente_id'  => $cliente_id,
-                'servicio_id' => !empty($data['servicio_id']) ? (int)$data['servicio_id'] : null,
-                'empleado_id' => $empleadoId,
-                'nombre'      => trim($data['nombre']),
-                'telefono'    => trim($data['telefono']),
-                'fecha'       => $fecha,
-                'hora'        => $hora,
+                'cliente_id'        => $cliente_id,
+                'servicio_id'       => !empty($data['servicio_id']) ? (int)$data['servicio_id'] : null,
+                'empleado_id'       => $empleadoId,
+                'nombre'            => trim($data['nombre']),
+                'telefono'          => trim($data['telefono']),
+                'fecha'             => $fecha,
+                'hora'              => $hora,
+                'cantidad_personas' => $personas,
+                'mesas_ocupadas'    => $tipo_reserva === 'capacidad' ? $mesas_requeridas : 1,
+                'estado'            => $estadoInicial
             ]);
 
             if ($ok) {
@@ -228,6 +255,22 @@ class CitaService {
 
     private function limpiarBloqueosExpirados(): void {
         $this->db->prepare("DELETE FROM bloqueos_citas WHERE expira_en <= NOW()")->execute();
+    }
+
+    /**
+     * Revisa citas pendientes que ya superaron su tiempo de gracia y las marca como no_show
+     */
+    public function ejecutarAutoNoShow(int $clienteId): void {
+        $cliente = $this->clienteModel->find($clienteId);
+        $tiempo_gracia = (int)($cliente['tiempo_gracia'] ?? 15);
+
+        $stmt = $this->db->prepare("
+            UPDATE citas 
+            SET estado = 'no_show'
+            WHERE cliente_id = ? AND estado = 'pendiente'
+              AND STR_TO_DATE(CONCAT(fecha, ' ', hora), '%Y-%m-%d %H:%i:%s') < DATE_SUB(NOW(), INTERVAL ? MINUTE)
+        ");
+        $stmt->execute([$clienteId, $tiempo_gracia]);
     }
 
     // =========================================================================

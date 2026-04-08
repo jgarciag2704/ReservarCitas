@@ -10,6 +10,9 @@ $badgeClasses   = [
     'completada' => 'bg-green-100  text-green-800',
     'cancelada'  => 'bg-red-100    text-red-800',
     'no_llego'   => 'bg-slate-200  text-slate-700',
+    'no_show'    => 'bg-gray-800   text-gray-100', // Auto-Cancelado por capacidad
+    'en_curso'   => 'bg-blue-100   text-blue-800',
+    'finalizada' => 'bg-emerald-100 text-emerald-800',
 ];
 ?>
 <!DOCTYPE html>
@@ -53,7 +56,11 @@ $badgeClasses   = [
                                 <th class="p-4">Cliente</th>
                                 <th class="p-4">Teléfono</th>
                                 <th class="p-4">Servicio</th>
-                                <th class="p-4">Especialista</th>
+                                <?php if (($this->negocioActual['tipo_reserva'] ?? 'individual') === 'capacidad'): ?>
+                                    <th class="p-4">Ocupación</th>
+                                <?php else: ?>
+                                    <th class="p-4">Especialista</th>
+                                <?php endif; ?>
                                 <th class="p-4">Estado</th>
                                 <th class="p-4 text-right">Acciones</th>
                             </tr>
@@ -70,15 +77,29 @@ $badgeClasses   = [
                                     <td class="p-4"><?= htmlspecialchars($c['nombre_cliente']) ?></td>
                                     <td class="p-4"><?= htmlspecialchars($c['telefono']) ?></td>
                                     <td class="p-4"><?= htmlspecialchars($c['servicio_nombre'] ?? '—') ?></td>
+                                    
+                                    <?php if (($this->negocioActual['tipo_reserva'] ?? 'individual') === 'capacidad'): ?>
+                                    <td class="p-4">
+                                        <div class="flex flex-col gap-1 items-start">
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100">
+                                                👥 <?= (int)($c['cantidad_personas'] ?? 1) ?> Personas
+                                            </span>
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                                                🪑 <?= (int)($c['mesas_ocupadas'] ?? 1) ?> Mesa(s)
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <?php else: ?>
                                     <td class="p-4">
                                         <?php if (!empty($c['empleado_nombre'])): ?>
-                                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">
+                                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
                                                 👤 <?= htmlspecialchars($c['empleado_nombre']) ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="text-gray-400 text-xs">—</span>
                                         <?php endif; ?>
                                     </td>
+                                    <?php endif; ?>
                                     <td class="p-4">
                                         <span class="px-2.5 py-1 rounded-full text-xs font-medium <?= $badge ?>">
                                             <?= ucfirst($estado) ?>
@@ -99,12 +120,20 @@ $badgeClasses   = [
                                             </button>
                                         <?php endif; ?>
 
-                                        <!-- COMPLETAR -->
-                                        <?php if($estado === 'confirmada'): ?>
-                                            <button onclick="gestionarCita(<?= (int)$c['id'] ?>, 'completada')" 
-                                                    class="inline-flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm">
-                                                🏁 Completar
-                                            </button>
+                                        <!-- COMPLETAR / LIBERAR MESA -->
+                                        <?php if($estado === 'confirmada' || $estado === 'en_curso'): ?>
+                                            <?php if (($this->negocioActual['tipo_reserva'] ?? 'individual') === 'capacidad'): ?>
+                                                <button onclick="gestionarCita(<?= (int)$c['id'] ?>, 'finalizada')" 
+                                                        class="inline-flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm">
+                                                    🏁 Liberar Mesa
+                                                </button>
+                                            <?php else: ?>
+                                                <button onclick="gestionarCita(<?= (int)$c['id'] ?>, 'completada')" 
+                                                        class="inline-flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm">
+                                                    🏁 Completar
+                                                </button>
+                                            <?php endif; ?>
+                                            
                                             <button onclick="gestionarCita(<?= (int)$c['id'] ?>, 'no_llego')" 
                                                     class="inline-flex items-center gap-1.5 bg-slate-400 hover:bg-slate-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm" title="Marcar como inasistencia">
                                                 🚫 No llegó

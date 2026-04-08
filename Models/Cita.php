@@ -58,8 +58,8 @@ class Cita extends BaseModel {
     public function crear(array $data): bool {
         try {
             $stmt = $this->db->prepare(
-                'INSERT INTO citas (cliente_id, servicio_id, empleado_id, nombre_cliente, telefono, fecha, hora)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+                'INSERT INTO citas (cliente_id, servicio_id, empleado_id, nombre_cliente, telefono, fecha, hora, cantidad_personas, mesas_ocupadas, estado)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             return $stmt->execute([
                 $data['cliente_id'],
@@ -69,10 +69,16 @@ class Cita extends BaseModel {
                 $data['telefono'],
                 $data['fecha'],
                 $data['hora'],
+                $data['cantidad_personas'] ?? 1,
+                $data['mesas_ocupadas'] ?? 1,
+                $data['estado'] ?? 'pendiente'
             ]);
         } catch (PDOException $e) {
+            // Log the error so the user can easily debug if it returns false
+            error_log("DB_ERROR_CITA: " . $e->getMessage());
             if ($e->getCode() == 23000) {
-                return false;
+                // Throw an exception so we can catch it in the service and see exactly what failed
+                throw new Exception("Error de SQL: " . $e->getMessage());
             }
             throw $e;
         }
@@ -106,13 +112,25 @@ class Cita extends BaseModel {
      */
     public function getHorasOcupadas(int $cliente_id, string $fecha): array {
         $stmt = $this->db->prepare(
-            "SELECT TIME_FORMAT(hora, '%H:%i') AS hora
-             FROM citas
-             WHERE cliente_id = ? AND fecha = ?
-               AND estado NOT IN ('cancelada')"
+            "SELECT TIME_FORMAT(c.hora, '%H:%i') AS hora, COALESCE(s.duracion, 30) AS duracion
+             FROM citas c
+             LEFT JOIN servicios s ON c.servicio_id = s.id
+             WHERE c.cliente_id = ? AND c.fecha = ?
+               AND c.estado NOT IN ('cancelada')"
         );
         $stmt->execute([$cliente_id, $fecha]);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $citas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $ocupadas = [];
+        foreach ($citas as $c) {
+            $inicio = strtotime($c['hora']);
+            $duracion = (int)$c['duracion'];
+            // Las citas cubren un rango basado en su duración en fragmentos de 15 minutos (mínimo común).
+            for ($t = 0; $t < $duracion; $t += 15) {
+                $ocupadas[] = date('H:i', $inicio + ($t * 60));
+            }
+        }
+        return array_unique($ocupadas);
     }
 
     /**
@@ -121,15 +139,36 @@ class Cita extends BaseModel {
      */
     public function getEmpleadosOcupadosEnHora(int $clienteId, string $fecha, string $hora): array {
         $stmt = $this->db->prepare(
-            "SELECT empleado_id
-             FROM citas
-             WHERE cliente_id = ? AND fecha = ?
-               AND TIME_FORMAT(hora, '%H:%i') = ?
-               AND estado NOT IN ('cancelada')
-               AND empleado_id IS NOT NULL"
+            "SELECT c.empleado_id
+             FROM citas c
+             LEFT JOIN servicios s ON c.servicio_id = s.id
+             WHERE c.cliente_id = ? AND c.fecha = ?
+               AND c.estado NOT IN ('cancelada')
+               AND c.empleado_id IS NOT NULL
+               AND TIME(STR_TO_DATE(?, '%H:%i')) >= c.hora
+               AND TIME(STR_TO_DATE(?, '%H:%i')) < ADDTIME(c.hora, SEC_TO_TIME(COALESCE(s.duracion, 30) * 60))"
         );
-        $stmt->execute([$clienteId, $fecha, $hora]);
+        $horaFormato = date('H:i', strtotime($hora));
+        $stmt->execute([$clienteId, $fecha, $horaFormato, $horaFormato]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Calcula la suma de mesas ocupadas en una hora específica
+     */
+    public function getMesasOcupadasEnHora(int $clienteId, string $fecha, string $hora): int {
+        $stmt = $this->db->prepare(
+            "SELECT COALESCE(SUM(c.mesas_ocupadas), 0)
+             FROM citas c
+             LEFT JOIN servicios s ON c.servicio_id = s.id
+             WHERE c.cliente_id = ? AND c.fecha = ?
+               AND c.estado NOT IN ('cancelada', 'finalizada', 'no_show')
+               AND TIME(STR_TO_DATE(?, '%H:%i')) >= c.hora
+               AND TIME(STR_TO_DATE(?, '%H:%i')) < ADDTIME(c.hora, SEC_TO_TIME(COALESCE(s.duracion, 30) * 60))"
+        );
+        $horaFormato = date('H:i', strtotime($hora));
+        $stmt->execute([$clienteId, $fecha, $horaFormato, $horaFormato]);
+        return (int)$stmt->fetchColumn();
     }
 
     /**

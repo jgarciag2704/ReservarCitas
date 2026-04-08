@@ -205,6 +205,19 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
             <div class="bg-slate-50 rounded-2xl p-5 space-y-6 border border-slate-100">
 
+                <?php if (($cliente['tipo_reserva'] ?? 'individual') === 'capacidad'): ?>
+                <!-- Cantidad de personas -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">0. ¿Cuántas personas son?</label>
+                    <div class="relative">
+                        <input type="number" id="input-personas" min="1" max="50" value="1"
+                               class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-700 font-bold focus:outline-none focus:ring-2 transition-shadow shadow-sm"
+                               style="--tw-ring-color: var(--color)"
+                               onchange="estadoCita.personas = this.value; if(estadoCita.fecha) cargarHoras(estadoCita.fecha);">
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Buscador de fecha moderno -->
                 <div class="relative">
                     <label class="block text-sm font-bold text-slate-700 mb-2">1. Selecciona el día</label>
@@ -277,6 +290,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                 <input type="hidden" name="fecha"          id="h-fecha">
                 <input type="hidden" name="hora"           id="h-hora">
                 <input type="hidden" name="empleado_id"    id="h-empleado_id">
+                <input type="hidden" name="personas"       id="h-personas">
                 <input type="hidden" name="telefono"       id="h-telefono-full">
 
                 <div>
@@ -328,6 +342,7 @@ let estadoCita = {
     hora:          null,
     empleadoId:    null,
     empleadoNombre: null,
+    personas:      document.getElementById('input-personas') ? document.getElementById('input-personas').value : 1
 };
 
 // ── Navegación de pasos ───────────────────────────────────────────────────────
@@ -399,7 +414,7 @@ function cargarHoras(fecha) {
     const container = document.getElementById('horasContainer');
     container.innerHTML = '<p class="text-sm text-gray-400 animate-pulse">Cargando horarios...</p>';
 
-    fetch(`index.php?controller=cliente&action=horasDisponibles&cliente_id=${CLIENTE_ID}&servicio_id=${estadoCita.servicioId}&fecha=${fecha}`)
+    fetch(`index.php?controller=cliente&action=horasDisponibles&cliente_id=${CLIENTE_ID}&servicio_id=${estadoCita.servicioId}&fecha=${fecha}&personas=${estadoCita.personas}`)
         .then(r => r.json())
         .then(horas => {
             container.innerHTML = '';
@@ -621,6 +636,9 @@ irPaso = async function(n) {
         document.getElementById('h-fecha').value           = estadoCita.fecha;
         document.getElementById('h-hora').value            = estadoCita.hora;
         document.getElementById('h-empleado_id').value     = estadoCita.empleadoId || '';
+        if (document.getElementById('h-personas')) {
+            document.getElementById('h-personas').value = estadoCita.personas;
+        }
 
         const fechaLeg = new Date(estadoCita.fecha + 'T00:00').toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
         document.getElementById('resumen-final-servicio').textContent = estadoCita.servicioNombre;

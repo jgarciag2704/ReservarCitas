@@ -3,6 +3,9 @@
 //exit;
 session_start();
 
+// Configurar zona horaria por defecto para México (UTC-6)
+date_default_timezone_set('America/Mexico_City');
+
 // ✅ Definir la ruta base del proyecto (Absolute Path)
 define('BASE_PATH', __DIR__ . '/');
 

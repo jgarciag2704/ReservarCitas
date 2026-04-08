@@ -12,10 +12,10 @@ class Cliente {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create($nombre, $slug, $color, $telefono = null, $logo = null) {
+    public function create($nombre, $slug, $color, $telefono = null, $logo = null, $tipo_reserva = 'individual', $cantidad_mesas = 1, $sillas_por_mesa = 4, $porcentaje_online = 100, $tiempo_gracia = 15) {
         $stmt = $this->db->prepare("
-            INSERT INTO clientes (nombre, slug, color, telefono, logo)
-            VALUES (:nombre, :slug, :color, :telefono, :logo)
+            INSERT INTO clientes (nombre, slug, color, telefono, logo, tipo_reserva, cantidad_mesas, sillas_por_mesa, porcentaje_online, tiempo_gracia)
+            VALUES (:nombre, :slug, :color, :telefono, :logo, :tipo_reserva, :cantidad_mesas, :sillas_por_mesa, :porcentaje_online, :tiempo_gracia)
         ");
 
         return $stmt->execute([
@@ -23,7 +23,12 @@ class Cliente {
             ':slug' => $slug,
             ':color' => $color,
             ':telefono' => $telefono,
-            ':logo' => $logo
+            ':logo' => $logo,
+            ':tipo_reserva' => $tipo_reserva,
+            ':cantidad_mesas' => $cantidad_mesas,
+            ':sillas_por_mesa' => $sillas_por_mesa,
+            ':porcentaje_online' => $porcentaje_online,
+            ':tiempo_gracia' => $tiempo_gracia
         ]);
     }
 
@@ -33,25 +38,35 @@ class Cliente {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, $nombre, $slug, $color, $telefono = null, $logo = null) {
+    public function update($id, $nombre, $slug, $color, $telefono = null, $logo = null, $tipo_reserva = 'individual', $cantidad_mesas = 1, $sillas_por_mesa = 4, $porcentaje_online = 100, $tiempo_gracia = 15) {
         // Build the query dynamically depending on whether a logo is provided
         if ($logo !== null) {
-            $sql = "UPDATE clientes SET nombre = :nombre, slug = :slug, color = :color, telefono = :telefono, logo = :logo WHERE id = :id";
+            $sql = "UPDATE clientes SET nombre = :nombre, slug = :slug, color = :color, telefono = :telefono, logo = :logo, tipo_reserva = :tipo_reserva, cantidad_mesas = :cantidad_mesas, sillas_por_mesa = :sillas_por_mesa, porcentaje_online = :porcentaje_online, tiempo_gracia = :tiempo_gracia WHERE id = :id";
             $params = [
                 ':nombre' => $nombre,
                 ':slug' => $slug,
                 ':color' => $color,
                 ':telefono' => $telefono,
                 ':logo' => $logo,
+                ':tipo_reserva' => $tipo_reserva,
+                ':cantidad_mesas' => $cantidad_mesas,
+                ':sillas_por_mesa' => $sillas_por_mesa,
+                ':porcentaje_online' => $porcentaje_online,
+                ':tiempo_gracia' => $tiempo_gracia,
                 ':id' => $id
             ];
         } else {
-            $sql = "UPDATE clientes SET nombre = :nombre, slug = :slug, color = :color, telefono = :telefono WHERE id = :id";
+            $sql = "UPDATE clientes SET nombre = :nombre, slug = :slug, color = :color, telefono = :telefono, tipo_reserva = :tipo_reserva, cantidad_mesas = :cantidad_mesas, sillas_por_mesa = :sillas_por_mesa, porcentaje_online = :porcentaje_online, tiempo_gracia = :tiempo_gracia WHERE id = :id";
             $params = [
                 ':nombre' => $nombre,
                 ':slug' => $slug,
                 ':color' => $color,
                 ':telefono' => $telefono,
+                ':tipo_reserva' => $tipo_reserva,
+                ':cantidad_mesas' => $cantidad_mesas,
+                ':sillas_por_mesa' => $sillas_por_mesa,
+                ':porcentaje_online' => $porcentaje_online,
+                ':tiempo_gracia' => $tiempo_gracia,
                 ':id' => $id
             ];
         }

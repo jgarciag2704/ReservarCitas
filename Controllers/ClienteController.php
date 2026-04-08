@@ -1,3 +1,4 @@
+
 <?php
 require_once BASE_PATH . 'Models/Cliente.php';
 require_once BASE_PATH . 'Models/Servicio.php';
@@ -115,6 +116,12 @@ class ClienteController {
             exit;
         }
 
+        $cliente = $this->clienteModel->find($cliente_id);
+        $tipo_reserva = $cliente['tipo_reserva'] ?? 'individual';
+        $cantidad_mesas = (int)($cliente['cantidad_mesas'] ?? 1);
+        $sillas_por_mesa = (int)($cliente['sillas_por_mesa'] ?? 4);
+        $max_mesas_online = (int)($cantidad_mesas * ($cliente['porcentaje_online'] / 100));
+
         // Empleados asignados al servicio
         $empleadosAsignados = [];
         if ($servicio_id > 0) {
@@ -126,8 +133,33 @@ class ClienteController {
         $citaService = new CitaService($this->db);
 
         $disponibles = [];
+        
+        // Filtro para no mostrar horarios que ya pasaron en el día de hoy
+        $horaFiltroHoy = ($fecha === date('Y-m-d')) ? date('H:i') : null;
 
-        if (empty($empleadoIds)) {
+        if ($tipo_reserva === 'capacidad') {
+            // Lógica de Restaurante/Aforo
+            $horariosGral = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
+            
+            // Asumimos que preguntan por 1 persona por defecto en el selector inicial si no envían 'personas' (opcional en UI)
+            $personas = isset($_GET['personas']) ? (int)$_GET['personas'] : 1;
+            $mesas_requeridas = (int)ceil($personas / ($sillas_por_mesa ?: 1));
+
+            foreach ($horariosGral as $h) {
+                $inicio = strtotime($h['hora_inicio']);
+                $fin    = strtotime($h['hora_fin']);
+                for ($t = $inicio; $t < $fin; $t += 1800) {
+                    $hora = date('H:i', $t);
+                    if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
+                    
+                    $ocupadas = $this->citaModel->getMesasOcupadasEnHora($cliente_id, $fecha, $hora);
+                    
+                    if (($ocupadas + $mesas_requeridas) <= $max_mesas_online) {
+                        $disponibles[] = $hora;
+                    }
+                }
+            }
+        } elseif (empty($empleadoIds)) {
             // Caso A: Sin empleados asignados → Usar Horario General del Negocio
             $horariosGral = $this->horarioModel->getByDia($cliente_id, $diaSemana, null);
             $citasOcupadas     = $this->citaModel->getHorasOcupadas($cliente_id, $fecha);
@@ -138,6 +170,8 @@ class ClienteController {
                 $fin    = strtotime($h['hora_fin']);
                 for ($t = $inicio; $t < $fin; $t += 1800) {
                     $hora = date('H:i', $t);
+                    if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
+                    
                     if (!in_array($hora, $citasOcupadas) && !in_array($hora, $bloqueadasLocales)) {
                         $disponibles[] = $hora;
                     }
@@ -157,6 +191,8 @@ class ClienteController {
             
             for ($t = strtotime('00:00'); $t <= strtotime('23:30'); $t += 1800) {
                 $hora = date('H:i', $t);
+                if ($horaFiltroHoy !== null && $hora <= $horaFiltroHoy) continue;
+                
                 $horaHms = date('H:i:s', $t);
 
                 foreach ($empleadoIds as $empId) {

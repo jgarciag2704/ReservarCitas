@@ -30,6 +30,11 @@ class AdminController {
         // ── Obtener datos del negocio (incluyendo el logo) ──────────────
         $clienteModel = new Cliente($db);
         $this->negocioActual = $clienteModel->find($this->clienteId);
+        
+        // ── Ejecutar liberación automática de mesas/espacios ────────────
+        require_once BASE_PATH . 'Services/CitaService.php';
+        $citaService = new CitaService($db);
+        $citaService->ejecutarAutoNoShow((int)$this->clienteId);
     }
 
     // =========================================================================
@@ -70,6 +75,39 @@ class AdminController {
         $statsServicios = $this->citaModel->getStatsServicios($this->clienteId);
 
         $negocioActual = $this->negocioActual;
+
+        // Capacidad Dashboard (Solo Restaurantes)
+        $esCapacidad = ($negocioActual['tipo_reserva'] ?? 'individual') === 'capacidad';
+        $mesasTotales = (int)($negocioActual['cantidad_mesas'] ?? 1);
+        $mesasActualesLibres = $mesasTotales;
+        $mesasOcupadasHoy = [];
+        
+        if ($esCapacidad) {
+            $hoy = date('Y-m-d');
+            $horaActual = date('H:i');
+            $ocupadasAhora = $this->citaModel->getMesasOcupadasEnHora($this->clienteId, $hoy, $horaActual);
+            $mesasActualesLibres = max(0, $mesasTotales - $ocupadasAhora);
+
+            // Calcular por hora basándonos en los horarios del negocio para hoy
+            $diasEs = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            $diaSemana = $diasEs[(int)date('w')];
+            $horariosGral = $this->horarioModel->getByDia($this->clienteId, $diaSemana, null);
+
+            foreach ($horariosGral as $h) {
+                $inicio = strtotime($h['hora_inicio']);
+                $fin    = strtotime($h['hora_fin']);
+                for ($t = $inicio; $t < $fin; $t += 3600) { // Saltos de 1 hora para bloque
+                    $horaStr = date('H:00', $t); 
+                    if (!isset($mesasOcupadasHoy[$horaStr])) {
+                        $ocup = $this->citaModel->getMesasOcupadasEnHora($this->clienteId, $hoy, $horaStr);
+                        $mesasOcupadasHoy[$horaStr] = [
+                            'hora' => $horaStr,
+                            'libres' => max(0, $mesasTotales - $ocup)
+                        ];
+                    }
+                }
+            }
+        }
 
         require BASE_PATH . 'Views/Admin/dashboard.php';
     }
@@ -282,7 +320,7 @@ class AdminController {
         $id     = (int)($_POST['id'] ?? 0);
         $estado = trim($_POST['estado'] ?? '');
 
-        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada'];
+        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada', 'no_show'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido.';
             header('Location: index.php?controller=admin&action=citas');
@@ -329,7 +367,7 @@ class AdminController {
         $id     = (int)($_POST['id'] ?? 0);
         $estado = trim($_POST['estado'] ?? '');
 
-        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego'];
+        $estadosValidos = ['pendiente', 'confirmada', 'cancelada', 'completada', 'no_llego', 'en_curso', 'finalizada', 'no_show'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido.';
             header('Location: index.php?controller=admin&action=citas');
@@ -459,6 +497,12 @@ class AdminController {
         $slug   = trim($_POST['slug']   ?? '');
         $color  = trim($_POST['color']  ?? '#6366F1');
         
+        $tipo_reserva      = $_POST['tipo_reserva'] ?? 'individual';
+        $cantidad_mesas    = (int)($_POST['cantidad_mesas'] ?? 1);
+        $sillas_por_mesa   = (int)($_POST['sillas_por_mesa'] ?? 4);
+        $porcentaje_online = (int)($_POST['porcentaje_online'] ?? 100);
+        $tiempo_gracia     = (int)($_POST['tiempo_gracia'] ?? 15);
+        
         // Validación básica
         if (!$nombre || !$slug) {
             $_SESSION['error'] = 'Nombre y URL son obligatorios.';
@@ -491,13 +535,12 @@ class AdminController {
         }
 
         // Actualizar en DB
-        // Usaremos el modelo Cliente
         $stmt = $this->db->prepare("
             UPDATE clientes 
-            SET nombre = ?, slug = ?, color = ?, logo = ? 
+            SET nombre = ?, slug = ?, color = ?, logo = ?, tipo_reserva = ?, cantidad_mesas = ?, sillas_por_mesa = ?, porcentaje_online = ?, tiempo_gracia = ?
             WHERE id = ?
         ");
-        $stmt->execute([$nombre, $slug, $color, $logoPath, $this->clienteId]);
+        $stmt->execute([$nombre, $slug, $color, $logoPath, $tipo_reserva, $cantidad_mesas, $sillas_por_mesa, $porcentaje_online, $tiempo_gracia, $this->clienteId]);
 
         $_SESSION['success'] = 'Configuración guardada correctamente.';
         header('Location: index.php?controller=admin&action=ajustes');
