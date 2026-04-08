@@ -93,7 +93,8 @@ class ClienteController {
     // API JSON: horas disponibles para una fecha + servicio
     // Opción B: un slot está disponible si AL MENOS UN empleado asignado está libre
     // GET: ?controller=cliente&action=horasDisponibles&cliente_id=X&servicio_id=Y&fecha=YYYY-MM-DD
-    // =================================================================    public function horasDisponibles(): void {
+    // =========================================================================
+    public function horasDisponibles(): void {
         header('Content-Type: application/json');
         
         // Limpiar cualquier salida previa (Warnings/Notices) para no romper el JSON
@@ -255,8 +256,6 @@ class ClienteController {
             ]);
             exit;
         }
-    }
-        exit;
     }
 
     // =========================================================================
