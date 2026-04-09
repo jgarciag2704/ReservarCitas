@@ -807,6 +807,117 @@ document.addEventListener('DOMContentLoaded', () => {
         inputTel.addEventListener('countrychange', validarFormulario);
         validarFormulario(); // Inicializar estado
     }
+
+    // Submit asíncrono para mostrar Modal Dinámico
+    const formReserva = document.getElementById('form-reserva');
+    if (formReserva) {
+        formReserva.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (btnConfirmar.disabled) return;
+
+            btnConfirmar.disabled = true;
+            btnConfirmar.innerHTML = 'Procesando...';
+
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const result = await response.json();
+
+                if (result.status) {
+                    mostrarExitoModal();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: result.message, confirmButtonColor: 'var(--color)' });
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Confirmar Cita';
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un error al procesar la cita.', confirmButtonColor: 'var(--color)' });
+                btnConfirmar.disabled = false;
+                btnConfirmar.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Confirmar Cita';
+            }
+        });
+    }
+
+    function mostrarExitoModal() {
+        const partesFecha = estadoCita.fecha.split('-');
+        const fechaObj = new Date(partesFecha[0], partesFecha[1] - 1, partesFecha[2]);
+        const fechaFormateada = fechaObj.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const horaFormateada = estadoCita.hora;
+
+        const telefonoDisplay = "<?= htmlspecialchars($cliente['telefono'] ?? '') ?>";
+        const nombre = document.getElementById('input-nombre').value.trim();
+        const negocio = "<?= htmlspecialchars($cliente['nombre']) ?>";
+        
+        let contactoHtml = '';
+        if (telefonoDisplay) {
+            let numLimpio = telefonoDisplay.replace(/\D/g, '');
+            let formattedPhone = `<span class="tracking-widest">${telefonoDisplay}</span>`;
+            let badgeLadaHtml = '';
+
+            if (numLimpio.length >= 10) {
+                let numLocal = numLimpio.slice(-10);
+                let lada = numLimpio.slice(0, -10);
+                
+                let numLocalFormatted = numLocal.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+                
+                if (lada) {
+                    badgeLadaHtml = `<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-sm font-bold mr-1.5 border border-indigo-200">+${lada}</span>`;
+                }
+                
+                formattedPhone = `<span class="tracking-widest">${numLocalFormatted}</span>`;
+            }
+
+            contactoHtml = `
+                <p class="text-sm text-slate-600 font-medium mb-3 text-center">Para cualquier duda, contáctanos al:</p>
+                <div class="flex items-center justify-center bg-slate-100 py-3.5 border border-slate-200 rounded-xl mb-5 text-slate-800 font-extrabold text-xl shadow-inner max-w-[280px] mx-auto">
+                    <svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    ${badgeLadaHtml}
+                    ${formattedPhone}
+                </div>
+            `;
+        } else {
+            contactoHtml = `<p class="text-sm text-slate-600 font-medium mb-5 text-center">Tu cita ya está confirmada.</p>`;
+        }
+
+        const htmlExito = `
+            <div class="text-center" style="animation: smoothEnter 0.5s ease-out forwards;">
+                <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+                    <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-2">✅ ¡Cita confirmada!</h2>
+                <p class="text-slate-600 font-medium text-lg leading-relaxed mb-6">
+                    Te esperamos el <strong class="text-slate-800">${fechaFormateada}</strong> a las <strong class="text-slate-800">${horaFormateada}</strong>
+                </p>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-left max-w-sm mx-auto shadow-sm">
+                    ${contactoHtml}
+                    
+                    <div class="flex flex-col gap-3">
+                        <button type="button" onclick="window.location.reload()" class="w-full btn-primary text-white py-3.5 rounded-xl font-bold text-[1.05rem] shadow-lg flex justify-center items-center gap-2">
+                            Listo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('step-3').innerHTML = htmlExito;
+        window.scrollTo({ top: document.getElementById('step-3').offsetTop - 50, behavior: 'smooth' });
+        
+        const circle3 = document.getElementById('ind-circle-3');
+        if(circle3) {
+            circle3.innerHTML = '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+        }
+    }
 });
 </script>
 

@@ -71,6 +71,14 @@ class ClienteController {
 
         $res = $citaService->procesarReserva((int)$cliente['id'], $_POST);
 
+        // Soporte para peticiones AJAX (JSON)
+        if ((!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || 
+            (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-Type: application/json');
+            echo json_encode($res);
+            exit;
+        }
+
         if ($res['status']) {
             $_SESSION['booking_success'] = $res['message'];
 
