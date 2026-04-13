@@ -701,9 +701,15 @@ irPaso = async function(n) {
         if (btnActivo) btnActivo.textContent = 'Bloqueando...';
 
         try {
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
             const res = await fetch('index.php?controller=cliente&action=bloquearHora', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({
                     cliente_id:  CLIENTE_ID,
                     fecha:       estadoCita.fecha,
