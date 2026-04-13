@@ -842,13 +842,16 @@ document.addEventListener('DOMContentLoaded', () => {
             btnConfirmar.innerHTML = 'Procesando...';
 
             const formData = new FormData(this);
+            const csrfToken = formData.get('csrf_token');
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     body: formData,
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-Token': csrfToken
                     }
                 });
                 const result = await response.json();

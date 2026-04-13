@@ -14,6 +14,11 @@ function csrf_field() {
 function verificarCSRF() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token_enviado = $_POST['csrf_token'] ?? '';
+
+        if (empty($token_enviado)) {
+            $token_enviado = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_SERVER['HTTP_X_CSRF-TOKEN'] ?? '';
+        }
+
         if (!hash_equals($_SESSION['csrf_token'], $token_enviado)) {
             http_response_code(403);
             die("Error de seguridad: Token CSRF inválido o expirado. Vuelve a recargar el formulario.");
