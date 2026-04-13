@@ -22,6 +22,10 @@ ALTER TABLE servicios
 ALTER TABLE usuarios
     ADD COLUMN IF NOT EXISTS nombre VARCHAR(100) NULL;
 
+-- Columna para forzar cambio de contraseña tras restablecerla
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS force_password_change TINYINT(1) NOT NULL DEFAULT 0;
+
 -- ============================================================
 -- Verificar estructura resultante
 -- ============================================================

@@ -39,3 +39,7 @@ CREATE TABLE IF NOT EXISTS citas (
 -- Agregar columna nombre a usuarios si no existe
 ALTER TABLE usuarios
     ADD COLUMN IF NOT EXISTS nombre VARCHAR(100) NULL;
+
+-- Agregar columna para forzar cambio de contraseña
+ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS force_password_change TINYINT(1) NOT NULL DEFAULT 0;

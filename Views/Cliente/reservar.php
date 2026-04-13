@@ -108,7 +108,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
 
     <!-- ── HÉADER DEL NEGOCIO (PREMIUM) ─────────────────────────────────── -->
     <header class="pt-12 pb-10 px-4">
-        <div class="max-w-2xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-[2.5rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-[2.5rem] p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 relative overflow-hidden">
             
             <!-- Brillo estético de fondo (animado/radial) -->
             <div class="absolute -top-20 -right-20 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
@@ -136,7 +136,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
             </div>
 
             <!-- Información -->
-            <div class="relative z-10 flex-1 pt-1 sm:pt-2">
+            <div class="relative z-10 flex-1 min-w-[20rem] pt-1 sm:pt-2">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 transition-colors px-3 py-1 rounded-full border border-white/20 mb-3 shadow-sm cursor-default">
                     <svg class="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     <span class="text-[10px] font-extrabold text-white uppercase tracking-widest drop-shadow-md">Reserva Protegida</span>
@@ -156,7 +156,7 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                     </p>
                 <?php endif; ?>
 
-                <div class="flex flex-wrap justify-center sm:justify-start gap-2.5">
+                <div class="flex flex-wrap justify-center sm:justify-start gap-4">
                     <?php if (!empty($cliente['experiencia'])): ?>
                         <div class="flex items-center gap-2 bg-black/10 hover:bg-black/20 backdrop-blur-md transition-all border border-white/10 px-3.5 py-1.5 rounded-xl shadow-sm hover:shadow-md cursor-default">
                             <span class="flex items-center justify-center w-6 h-6 bg-white/20 rounded-lg text-white shadow-inner">
@@ -164,6 +164,29 @@ $colorPrimario = !empty($cliente['color']) ? $cliente['color'] : '#3B82F6';
                             </span>
                             <span class="text-xs font-extrabold text-white tracking-wide"><?= htmlspecialchars($cliente['experiencia']) ?></span>
                         </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($cliente['telefono'])):
+                        $telefonoLimpio = preg_replace('/\D+/', '', $cliente['telefono']);
+                        $telefonoLocal = substr($telefonoLimpio, -10);
+                        $lada = substr($telefonoLimpio, 0, -10);
+                        $telefonoFormateado = $telefonoLimpio;
+
+                        if (strlen($telefonoLocal) === 10) {
+                            $telefonoFormateado = preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1 $2 $3', $telefonoLocal);
+                        }
+                    ?>
+                        <a href="tel:<?= htmlspecialchars((!empty($cliente['telefono']) && strpos($cliente['telefono'], '+') !== false) ? preg_replace('/[^\d+]/', '', $cliente['telefono']) : $telefonoLimpio) ?>" class="flex items-center gap-3 bg-black/15 hover:bg-black/25 backdrop-blur-md transition-all border border-white/15 px-4 py-3 rounded-2xl shadow-sm hover:-translate-y-0.5 hover:shadow-md">
+                            <span class="flex items-center justify-center w-10 h-10 bg-white rounded-2xl text-sky-600 shadow-inner">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            </span>
+                            <div class="text-left">
+                                <?php if (!empty($lada)): ?>
+                                    <div class="text-[10px] uppercase tracking-[0.3em] font-semibold text-sky-200 mb-0.5">LADA +<?= htmlspecialchars($lada) ?></div>
+                                <?php endif; ?>
+                                <div class="text-sm font-extrabold text-white tracking-wide"><?= htmlspecialchars($telefonoFormateado) ?></div>
+                            </div>
+                        </a>
                     <?php endif; ?>
 
                     <?php if (!empty($cliente['google_maps'])): ?>

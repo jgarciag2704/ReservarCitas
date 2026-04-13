@@ -20,6 +20,11 @@ class SuperAdminController {
             header("Location: /login");
             exit;
         }
+
+        if (!empty($_SESSION['user']['force_password_change'])) {
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
     }
 
     // 📌 LISTAR CLIENTES
@@ -137,5 +142,28 @@ class SuperAdminController {
         }
 
         header("Location: /index.php?controller=superadmin&action=index");
+    }
+
+    // 📌 RESTABLECER CONTRASEÑA DEL ADMINISTRADOR DEL CLIENTE
+    public function resetPassword() {
+        $clienteId = (int)($_GET['cliente_id'] ?? 0);
+
+        if (!$clienteId) {
+            $_SESSION['error'] = "Cliente inválido.";
+            header("Location: /index.php?controller=superadmin&action=index");
+            exit;
+        }
+
+        $adminUsuario = $this->usuarioModel->getByClienteAndRole($clienteId, 'admin');
+        if (!$adminUsuario) {
+            $_SESSION['error'] = "No se encontró el administrador de este cliente.";
+            header("Location: /index.php?controller=superadmin&action=index");
+            exit;
+        }
+
+        $this->usuarioModel->updatePassword((int)$adminUsuario['id'], 'Temporal1', true);
+        $_SESSION['success'] = "Contraseña temporal establecida. El administrador deberá cambiarla en el próximo inicio de sesión.";
+        header("Location: /index.php?controller=superadmin&action=index");
+        exit;
     }
 }

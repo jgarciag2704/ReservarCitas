@@ -15,6 +15,11 @@ class EmployeeController {
         // ── Protección: solo el rol 'admin' puede gestionar empleados ─────────
         $this->checkSoloAdmin();
 
+        if (!empty($_SESSION['user']['force_password_change'])) {
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
+
         // ── cliente_id del admin autenticado (multitenant) ────────────────────
         $this->clienteId = (int)$_SESSION['user']['cliente_id'];
 

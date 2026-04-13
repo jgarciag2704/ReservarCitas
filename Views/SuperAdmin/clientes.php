@@ -125,12 +125,19 @@ unset($_SESSION['success'], $_SESSION['error'], $_SESSION['warning']);
                                     Editar
                                 </button>
 
+                                <!-- RESTABLECER CONTRASEÑA -->
+                                <a href="/index.php?controller=superadmin&action=resetPassword&cliente_id=<?= $c['id'] ?>"
+                                   onclick="return confirmResetPassword(this.href)"
+                                   class="bg-blue-600 text-white px-3 py-1 rounded">
+                                    Restablecer contraseña
+                                </a>
+
                                 <!-- ELIMINAR -->
                                 <a href="/index.php?controller=superadmin&action=delete&id=<?= $c['id'] ?>"
-   onclick="return confirmDelete(this.href, '¿Eliminar cliente?', 'Se borrará permanentemente este cliente.')"
-   class="bg-red-600 text-white px-3 py-1 rounded">
-    Eliminar
-</a>
+                                   onclick="return confirmDelete(this.href, '¿Eliminar cliente?', 'Se borrará permanentemente este cliente.')"
+                                   class="bg-red-600 text-white px-3 py-1 rounded">
+                                    Eliminar
+                                </a>
 
                             </td>
                         </tr>
@@ -258,6 +265,24 @@ function openEditModal(data) {
 
 function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
+}
+
+function confirmResetPassword(url) {
+    Swal.fire({
+        title: '¿Restablecer contraseña?',
+        text: 'Se asignará la contraseña Temporal1 y el administrador deberá cambiarla en el próximo inicio de sesión.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, restablecer',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#6b7280'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+    return false;
 }
 </script>
 

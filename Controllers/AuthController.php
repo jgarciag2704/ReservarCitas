@@ -12,6 +12,10 @@ class AuthController {
     public function login(): void {
         // Si ya hay sesión activa, redirigir al panel correspondiente
         if (isset($_SESSION['user'])) {
+            if (!empty($_SESSION['user']['force_password_change'])) {
+                header('Location: index.php?controller=auth&action=cambiarPassword');
+                exit;
+            }
             $this->redirigirSegunRol($_SESSION['user']['rol']);
         }
         require BASE_PATH . 'Views/Auth/Login.php';
@@ -67,12 +71,18 @@ class AuthController {
 
             // ── Guardar sesión con datos esenciales (multitenant) ─────────────
             $_SESSION['user'] = [
-                'id'         => $user['id'],
-                'nombre'     => $user['nombre']     ?? $user['email'],
-                'email'      => $user['email'],
-                'rol'        => $user['rol'],
-                'cliente_id' => $user['cliente_id'],
+                'id'                    => $user['id'],
+                'nombre'                => $user['nombre']     ?? $user['email'],
+                'email'                 => $user['email'],
+                'rol'                   => $user['rol'],
+                'cliente_id'            => $user['cliente_id'],
+                'force_password_change' => (int)($user['force_password_change'] ?? 0),
             ];
+
+            if (!empty($_SESSION['user']['force_password_change'])) {
+                header('Location: index.php?controller=auth&action=cambiarPassword');
+                exit;
+            }
 
             $this->redirigirSegunRol($user['rol']);
 
@@ -93,6 +103,55 @@ class AuthController {
         session_destroy();
         header('Location: index.php?controller=auth&action=login');
         exit;
+    }
+
+    public function cambiarPassword(): void {
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=auth&action=login');
+            exit;
+        }
+
+        require BASE_PATH . 'Views/Auth/ChangePassword.php';
+    }
+
+    public function guardarPassword(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
+
+        if (!isset($_SESSION['user'])) {
+            header('Location: index.php?controller=auth&action=login');
+            exit;
+        }
+
+        $password = trim($_POST['password'] ?? '');
+        $confirm  = trim($_POST['confirm_password'] ?? '');
+
+        if (!$password || !$confirm) {
+            $_SESSION['error_login'] = 'Completa ambos campos.';
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
+
+        if ($password !== $confirm) {
+            $_SESSION['error_login'] = 'Las contraseñas no coinciden.';
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
+
+        if (!preg_match('/^(?=.*[A-Z])(?=.*[0-9])[A-Za-z0-9!@#$%^&*()_+\-\=\.,?]{8,}$/', $password)) {
+            $_SESSION['error_login'] = 'La contraseña debe tener al menos 8 caracteres, contener una mayúscula y puede incluir símbolos comunes como ! @ # $ % ^ & * ( ) _ + - = . , ?.';
+            header('Location: index.php?controller=auth&action=cambiarPassword');
+            exit;
+        }
+
+        $usuarioModel = new Usuario($this->db);
+        $usuarioModel->updatePassword((int)$_SESSION['user']['id'], $password, false);
+        $_SESSION['user']['force_password_change'] = 0;
+
+        $_SESSION['success'] = 'Contraseña actualizada correctamente.';
+        $this->redirigirSegunRol($_SESSION['user']['rol']);
     }
 
     // ── Helper: redirigir según rol ───────────────────────────────────────────
