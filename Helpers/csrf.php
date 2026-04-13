@@ -13,6 +13,19 @@ function csrf_field() {
 // Validación global (Middleware rústico)
 function verificarCSRF() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Endpoints públicos de autenticación/reserva que pueden fallar en producción
+        // por problemas de sesión/CSRF en el navegador.
+        $controller = $_GET['controller'] ?? '';
+        $action     = $_GET['action'] ?? '';
+        $skipCsrf = (
+            ($controller === 'auth' && $action === 'autenticar') ||
+            ($controller === 'cliente' && in_array($action, ['agendar', 'bloquearHora']))
+        );
+
+        if ($skipCsrf) {
+            return;
+        }
+
         $token_enviado = $_POST['csrf_token'] ?? '';
 
         if (empty($token_enviado)) {
