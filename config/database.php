@@ -21,7 +21,7 @@ class Database {
         } else {
             // Local
             $this->host = "localhost";
-            $this->port = "3306";
+            $this->port = "3307";
             $this->db   = "citas_db";
             $this->user = "root";
             $this->pass = "";
